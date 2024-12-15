@@ -1,0 +1,50 @@
+/* Special effects (hover, animations, etc.) */
+
+.circular-hover {
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    /* make the image circular */
+    transition: background-color 0.25s ease;
+    /* add a smooth transition effect */
+}
+
+.circular-hover:hover {
+    max-width: 100%;
+    max-height: 100%;
+    margin: auto;
+    background-color: rgba(194, 194, 194, 0.5);
+    /*box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);*/
+}
+
+.circular-hover-dark {
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    /* make the image circular */
+    transition: background-color 0.25s ease;
+    /* add a smooth transition effect */
+}
+
+.circular-hover-dark:hover {
+    max-width: 100%;
+    max-height: 100%;
+    margin: auto;
+    background-color: rgba(83, 83, 83, 0.5);
+    /*box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);*/
+}
+
+.no-underline {
+    text-decoration: none;
+}
+
+.hyperlink-color-red {
+    color: #FF4747;
+    transition: color 0.25s ease;
+}
+
+.hyperlink-color-red:hover {
+    color: #FF0A0A;
+    
+
+}

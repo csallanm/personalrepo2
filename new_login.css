@@ -1,0 +1,49 @@
+#login_shape1 {
+    background-color: #f3f3f3;
+}
+
+.bg {
+    /* The image used */
+    background-image: url("assets/registrars_office.png");
+
+    /* Full height */
+    height: 100%;
+
+    /* Center and scale the image nicely */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+/* button custom color */
+#btn-custom-color {
+    background-color: maroon;
+    border: maroon;
+    color: white;
+}
+
+#btn-custom-color:hover {
+    background-color: rgb(75, 0, 0);
+    border: rgb(75, 0, 0);
+    color: white;
+}
+
+input[type="password"]::-ms-reveal{
+    display: none;
+}
+
+#togglePassword{
+    border: none;
+    outline: none;
+}
+
+#toggleCPassword{
+    border: none;
+    outline: none;
+}
+
+#toggleDeletePassword{
+    border: none;
+    outline: none;
+}

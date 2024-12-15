@@ -1,0 +1,146 @@
+.nav-pills .nav-link .focus {
+  color: #b9b9b9;
+  /* Default text color for inactive pills */
+}
+
+.nav-pills .nav-link.active {
+  color: #fff;
+  /* Text color for active pill */
+  background-color: rgb(183, 0, 0);
+  /* Background color for active pill */
+}
+
+#imgsize1 {
+  width: 75px;
+}
+
+@media (max-width: 767.98px) {
+  .dropdown-menu {
+    /*position: absolute !important;*/
+    float: none !important;
+    width: auto !important;
+    margin-top: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
+
+html,
+body {
+  /*moves the body of the website */
+  max-width: 100%;
+  overflow-x: hidden;
+  padding-top: 45px;
+  background-image: url('assets/registrars_office.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center;
+}
+
+#shape1 {
+  /* shape size for individual shapes with id (located in HTML) */
+  background-color: #4e0000;
+  color: white;
+  border: none;
+}
+
+#shape2 {
+  background-color: #f3f3f3;
+  border: none;
+}
+
+#studshape {
+  /* shape size for individual shapes with id (located in HTML) */
+  background-color: #4e0000;
+  color: white;
+  border: none;
+  transition: background-color 0.5s ease;
+}
+
+#stud-img{
+  object-fit: cover;
+  height: 250px;
+}
+
+#studshape:hover {
+  /* shape size for individual shapes with id (located in HTML) */
+  background-color: #2b0000;
+  color: white;
+  border: none;
+}
+
+#con1 {
+  position: absolute;
+  display: block;
+  left: 28cm;
+  top: 15%; /* Position for larger screens */
+  width: 375px;
+  z-index: 1; /* Ensure con1 is on top */
+  transition: left 0.3s ease, top 0.3s ease, width 0.3s ease;
+}
+
+#con2 {
+  position: absolute;
+  display: block;
+  left: 16cm; /* Keep the left position as is */
+  top: 15%; /* Position for larger screens */
+  z-index: 0; /* Ensure con2 is below con1 */
+  transition: left 0.3s ease, top 0.3s ease, width 0.3s ease;
+}
+
+/* Media query for small screens */
+@media (max-width: 1500px) {
+  #con1 {
+    position: absolute; /* Keep absolute positioning */
+    left: 2%; /* Adjust left positioning */
+    top: 880px; /* Move con1 to 100px from the bottom of the viewport */
+    width: 90%; /* Adjust width for smaller screens */
+  }
+
+  #con2 {
+    position: absolute; /* Keep absolute positioning */
+    left: 2%; /* Adjust left positioning */
+    top: 305px; /* Move con2 to 50px from the bottom of the viewport */
+    width: 90%; /* Adjust width for smaller screens */
+  }
+}
+
+#nav2{
+  color: rgb(183, 0, 0);
+}
+
+#nav2.nav-link.active{
+  color:white;
+}
+
+/* Pagination custom color */
+.pagination .page-item.active .page-link {
+  background-color: rgb(183, 0, 0); /* Change this to your desired color */
+  color: white; /* Change text color if needed */
+  border-color: #bd0000;
+}
+
+.pagination .page-item.disabled .page-link {
+  color: #ccc; /* Inactive color */
+  background-color: #f8f9fa; /* Light gray background */
+  border-color: #dee2e6;
+  pointer-events: none; /* Ensure disabled links are not clickable */
+}
+
+.pagination .page-item .page-link {
+  color: rgb(183, 0, 0); /* Active link color */
+}
+
+/* button custom color */
+#btn-custom-color {
+  background-color: maroon;
+  border: maroon;
+  color: white;
+}
+
+#btn-custom-color:hover {
+  background-color: rgb(75, 0, 0);
+  border: rgb(75, 0, 0);
+  color: white;
+}

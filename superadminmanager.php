@@ -31,22 +31,13 @@ if ($email != false && $password != false) {
 }
 
 // fetch super admin
-$fetch_query = "SELECT name, email, tblroles.role_name FROM tblusers JOIN tblroles ON tblusers.role_id = tblroles.role_id WHERE tblusers.role_id = ?;";
+$fetch_query = "SELECT id, name, email, tblroles.role_name FROM tblusers JOIN tblroles ON tblusers.role_id = tblroles.role_id WHERE tblusers.role_id = ?;";
 
 $stmt = $con->prepare($fetch_query);
 $super_admin_role_id = 2;
 $stmt->bind_param("i", $super_admin_role_id);
 $stmt->execute();
 $result = $stmt->get_result();
-
-// Count super admin accounts
-$count_query = "SELECT COUNT(*) AS total_super_admins FROM tblusers WHERE role_id = ?";
-$count_stmt = $con->prepare($count_query);
-$count_stmt->bind_param("i", $super_admin_role_id);
-$count_stmt->execute();
-$count_result = $count_stmt->get_result();
-$count_row = $count_result->fetch_assoc();
-$total_super_admins = $count_row['total_super_admins'];
 
 ?>
 
@@ -164,57 +155,61 @@ $total_super_admins = $count_row['total_super_admins'];
                     <h1 class="modal-title fs-5" id="staticBackdropLabel">Add Super Admin</h1>
                 </div>
                 <div class="modal-body">
-                    <div class="container">
-                        <div class="row align-items-center">
-                            <div class="col-auto">
-                                <label for="inputInline" class="col-form-label">Full Name:</label>
-                            </div>
-                            <div class="col-auto">
-                                <input id="custom-textbox" class="form-control" type="text" name="name" placeholder="" required>
-                            </div>
-                        </div>
-                    </div>
-
-                    <p class="md-2"></p>
-
-                    <div class="container">
-                        <div class="row align-items-center">
-                            <div class="col-auto">
-                                <label for="inputInline" class="col-form-label">Email:</label>
-                            </div>
-                            <div class="col-auto">
-                                <input id="custom-textbox" class="form-control" type="email" name="email" placeholder="" required>
-                            </div>
-                        </div>
-                    </div>
-
-                    <p class="md-2"></p>
-
-                    <div class="container">
-                        <div class="row align-items-center">
-                            <div class="col-auto">
-                                <label for="inputInline" class="col-form-label">Password:</label>
-                            </div>
-                            <div class="col-auto">
-                                <div class="input-group">
-                                    <input id="password-field" minlength="6" class="form-control" type="password" name="password" placeholder="" required>
-                                    <button type="button" id="toggle-password" class="btn btn-outline-secondary">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
+                    <form action="backend_superad.php" method="POST">
+                        <div class="container">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <label for="inputInline" class="col-form-label">Full Name:</label>
+                                </div>
+                                <div class="col-auto">
+                                    <input id="custom-textbox" class="form-control" type="text" name="name" placeholder="" required>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <p class="md-2"></p>
+                        <p class="md-2"></p>
+
+                        <div class="container">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <label for="inputInline" class="col-form-label">Email:</label>
+                                </div>
+                                <div class="col-auto">
+                                    <input id="custom-textbox" class="form-control" type="email" name="email" placeholder="" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="md-2"></p>
+
+                        <div class="container">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <label for="inputInline" class="col-form-label">Password:</label>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="input-group">
+                                        <input id="password-field" minlength="6" class="form-control" type="password" name="password" placeholder="" required>
+                                        <button type="button" id="toggle-password" class="btn btn-outline-secondary">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="md-2"></p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" id="btn-custom-color" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="btn-custom-color">Submit</button>
+                    <button type="submit" class="btn btn-primary" name="addsuperadmin" id="btn-custom-color">Submit</button>
                 </div>
             </div>
+            </form>
         </div>
     </div>
+
+    <!-- Edit Super Admin Add Modal (soon) -->
 
     <div class="container-fluid">
         <h1>Super Admin Account Manager <a href="#"><img align="right" src="assets/add_1000dp_000_FILL0_wght400_GRAD0_opsz48.svg" style="width: 35px; display: inline;" data-bs-toggle="modal" data-bs-target="#addSuperAdmin" class="circular-hover-dark"></a></h1>
@@ -238,13 +233,39 @@ $total_super_admins = $count_row['total_super_admins'];
                         <td><?php echo htmlspecialchars($row['role_name']); ?></td>
                         <td>
                             <button class="btn btn-primary btn-sm" id="btn-custom-color">Edit</button>
-                            <?php if ($total_super_admins > 1): ?>
-                                <button class="btn btn-danger btn-sm" id="btn-custom-color">Delete</button>
+                            <?php if (!($fetch_info['role_id'] == 2 && $row['email'] == $fetch_info['email'])): ?>
+                                <!-- Delete Button to Open Modal -->
+                                <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteSuperAdmin<?php echo $row['id']; ?>" id="btn-custom-color">Delete</button>
                             <?php endif; ?>
                         </td>
+
+                        <!-- Modal for Each Super Admin -->
+                        <div class="modal fade" id="deleteSuperAdmin<?php echo $row['id']; ?>" tabindex="-1" aria-labelledby="deleteSuperAdminLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteSuperAdminLabel">Delete Super Admin?</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Are you sure you want to delete <strong><?php echo htmlspecialchars($row['name']); ?></strong>?
+                                        <form action="backend_superad.php" method="POST">
+                                            <!-- Hidden field to pass the ID -->
+                                            <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" id="btn-custom-color" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" name="deletesuperadmin" id="btn-custom-color" class="btn btn-danger">Delete</button>
+                                    </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
                     </tr>
                 <?php endwhile; ?>
             </tbody>
+
 
         </table>
     </div>
@@ -257,7 +278,7 @@ $total_super_admins = $count_row['total_super_admins'];
             const passwordField = document.getElementById('password-field');
             const toggleIcon = this.querySelector('i');
 
-            if(passwordField.type === 'password'){
+            if (passwordField.type === 'password') {
                 passwordField.type = 'text';
                 toggleIcon.classList.add('fa-eye-slash');
                 toggleIcon.classList.remove('fa-eye');

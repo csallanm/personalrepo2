@@ -64,7 +64,7 @@ if ($email != false && $password != false) {
                 <img src="assets/user-icon-2048x2048-ihoxz4vq.png" alt="hugenerd" width="30" height="30"
                     class="rounded-circle">
                 <span class="d-none d-sm-inline mx-2" style="text-decoration: none; color: white;">
-                    <?php echo $fetch_info['name'] ?>user
+                    <?php echo $fetch_info['name'] ?>
                 </span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark text-small shadow"

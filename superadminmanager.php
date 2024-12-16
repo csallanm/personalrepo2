@@ -12,9 +12,15 @@ if ($email != false && $password != false) {
         $fetch_info = mysqli_fetch_assoc($run_Sql);
         $status = $fetch_info['status'];
         $code = $fetch_info['code'];
+        $role_id = $fetch_info['role_id'];
         if ($status == "verified") {
             if ($code != 0) {
                 header('Location: resetcode.php');
+            }
+
+            if ($role_id != 2) {
+                header('Location: homepage.php');
+                exit();
             }
         } else {
             header('Location: userotp.php');
@@ -24,10 +30,29 @@ if ($email != false && $password != false) {
     header('Location: login.php');
 }
 
+// fetch super admin
+$fetch_query = "SELECT name, email, tblroles.role_name FROM tblusers JOIN tblroles ON tblusers.role_id = tblroles.role_id WHERE tblusers.role_id = ?;";
+
+$stmt = $con->prepare($fetch_query);
+$super_admin_role_id = 2;
+$stmt->bind_param("i", $super_admin_role_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+// Count super admin accounts
+$count_query = "SELECT COUNT(*) AS total_super_admins FROM tblusers WHERE role_id = ?";
+$count_stmt = $con->prepare($count_query);
+$count_stmt->bind_param("i", $super_admin_role_id);
+$count_stmt->execute();
+$count_result = $count_stmt->get_result();
+$count_row = $count_result->fetch_assoc();
+$total_super_admins = $count_row['total_super_admins'];
+
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -52,7 +77,7 @@ if ($email != false && $password != false) {
         <div class="dropdown-pr4 ms-auto">
             <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle mx-3" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
                 <img src="assets/user-icon-2048x2048-ihoxz4vq.png" alt="hugenerd" width="30" height="30" class="rounded-circle">
-                <span class="d-none d-sm-inline mx-2" style="text-decoration: none; color: white;"><?php echo $fetch_info['name'] ?>user</span>
+                <span class="d-none d-sm-inline mx-2" style="text-decoration: none; color: white;"><?php echo $fetch_info['name'] ?></span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark text-small shadow" aria-labelledby="dropdownMenuButton">
                 <li><a class="dropdown-item" href="EUC_SAS_MANUAL.pdf" target="_blank">User Manual</a></li>
@@ -74,10 +99,125 @@ if ($email != false && $password != false) {
         </div>
     </nav>
 </head>
+
+<style>
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .col-form-label {
+        min-width: 145px;
+        /* Set a minimum width to align labels consistently */
+        text-align: left;
+        /* Align text to the right to match input fields */
+    }
+
+    .form-control,
+    .form-select {
+        width: 100%;
+        /* Ensure inputs and selects are uniformly wide */
+    }
+
+    .info-container {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        /* spacing between rows */
+    }
+
+    /* Row styling */
+    .info-row {
+        display: flex;
+        align-items: center;
+    }
+
+    /* Label styling for consistent width */
+    .info-row strong {
+        min-width: 150px;
+        /* adjust width for alignment */
+        text-align: left;
+        padding-right: 10px;
+        /* space between label and value */
+        font-weight: bold;
+    }
+
+    /* Value styling */
+    .info-row span {
+        flex: 1;
+        /* occupies remaining space */
+        text-align: left;
+    }
+
+    .custom-select-width {
+        width: 205px;
+        /* Set your desired width */
+    }
+</style>
+
 <body style="overflow-x: hidden;">
-    
+
+    <!-- Super Admin Add Modal -->
+    <div class="modal fade" id="addSuperAdmin" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Add Super Admin</h1>
+                </div>
+                <div class="modal-body">
+                    <div class="container">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <label for="inputInline" class="col-form-label">Full Name:</label>
+                            </div>
+                            <div class="col-auto">
+                                <input id="custom-textbox" class="form-control" type="text" name="name" placeholder="" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="md-2"></p>
+
+                    <div class="container">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <label for="inputInline" class="col-form-label">Email:</label>
+                            </div>
+                            <div class="col-auto">
+                                <input id="custom-textbox" class="form-control" type="email" name="email" placeholder="" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="md-2"></p>
+
+                    <div class="container">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <label for="inputInline" class="col-form-label">Password:</label>
+                            </div>
+                            <div class="col-auto">
+                                <div class="input-group">
+                                    <input id="password-field" minlength="6" class="form-control" type="password" name="password" placeholder="" required>
+                                    <button type="button" id="toggle-password" class="btn btn-outline-secondary">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="md-2"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="btn-custom-color" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="btn-custom-color">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container-fluid">
-        <h1>Super Admin Account Manager <a href="#"><img align="right" src="assets/add_1000dp_000_FILL0_wght400_GRAD0_opsz48.svg" style="width: 35px; display: inline;" data-bs-toggle="modal" data-bs-target="#staticBackdrop" class="circular-hover-dark"></a></h1>
+        <h1>Super Admin Account Manager <a href="#"><img align="right" src="assets/add_1000dp_000_FILL0_wght400_GRAD0_opsz48.svg" style="width: 35px; display: inline;" data-bs-toggle="modal" data-bs-target="#addSuperAdmin" class="circular-hover-dark"></a></h1>
 
         <hr>
 
@@ -90,12 +230,46 @@ if ($email != false && $password != false) {
                     <th scope="col">Actions</th>
                 </tr>
             </thead>
+            <tbody>
+                <?php while ($row = $result->fetch_assoc()): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($row['name']); ?></td>
+                        <td><?php echo htmlspecialchars($row['email']); ?></td>
+                        <td><?php echo htmlspecialchars($row['role_name']); ?></td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" id="btn-custom-color">Edit</button>
+                            <?php if ($total_super_admins > 1): ?>
+                                <button class="btn btn-danger btn-sm" id="btn-custom-color">Delete</button>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+
         </table>
     </div>
     </div>
 
     <script src="js/bootstrap.bundle.min.js"></script>
 
+    <script>
+        document.getElementById('toggle-password').addEventListener('click', function() {
+            const passwordField = document.getElementById('password-field');
+            const toggleIcon = this.querySelector('i');
+
+            if(passwordField.type === 'password'){
+                passwordField.type = 'text';
+                toggleIcon.classList.add('fa-eye-slash');
+                toggleIcon.classList.remove('fa-eye');
+            } else {
+                passwordField.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        })
+    </script>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </body>
+
 </html>

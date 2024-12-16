@@ -12,9 +12,16 @@ if ($email != false && $password != false) {
         $fetch_info = mysqli_fetch_assoc($run_Sql);
         $status = $fetch_info['status'];
         $code = $fetch_info['code'];
+        $role_id = $fetch_info['role_id'];
         if ($status == "verified") {
             if ($code != 0) {
                 header('Location: resetcode.php');
+            }
+
+            // role based access
+            if($role_id != 2){
+                header('Location: homepage.php');
+                exit();
             }
         } else {
             header('Location: userotp.php');
@@ -52,7 +59,7 @@ if ($email != false && $password != false) {
         <div class="dropdown-pr4 ms-auto">
             <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle mx-3" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
                 <img src="assets/user-icon-2048x2048-ihoxz4vq.png" alt="hugenerd" width="30" height="30" class="rounded-circle">
-                <span class="d-none d-sm-inline mx-2" style="text-decoration: none; color: white;"><?php echo $fetch_info['name'] ?>user</span>
+                <span class="d-none d-sm-inline mx-2" style="text-decoration: none; color: white;"><?php echo $fetch_info['name'] ?></span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark text-small shadow" aria-labelledby="dropdownMenuButton">
                 <li><a class="dropdown-item" href="EUC_SAS_MANUAL.pdf" target="_blank">User Manual</a></li>

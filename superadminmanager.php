@@ -213,6 +213,7 @@ $result = $stmt->get_result();
 
     <div class="container-fluid">
         <h1>Super Admin Account Manager <a href="#"><img align="right" src="assets/add_1000dp_000_FILL0_wght400_GRAD0_opsz48.svg" style="width: 35px; display: inline;" data-bs-toggle="modal" data-bs-target="#addSuperAdmin" class="circular-hover-dark"></a></h1>
+        <p>To edit or update your own Super Admin account, go to <a href="accountsettings.php" style="text-decoration: none; color: maroon;">Account Settings</a> to update your account.</p>
 
         <hr>
 
@@ -232,7 +233,12 @@ $result = $stmt->get_result();
                         <td><?php echo htmlspecialchars($row['email']); ?></td>
                         <td><?php echo htmlspecialchars($row['role_name']); ?></td>
                         <td>
-                            <button class="btn btn-primary btn-sm" id="btn-custom-color">Edit</button>
+                            <button class="btn btn-primary btn-sm" id="btn-custom-color"
+                                <?php if ($fetch_info['role_id'] == 2 && $row['email'] == $fetch_info['email']) {
+                                    echo 'style="display:none;"';
+                                } ?>>
+                                Edit
+                            </button>
                             <?php if (!($fetch_info['role_id'] == 2 && $row['email'] == $fetch_info['email'])): ?>
                                 <!-- Delete Button to Open Modal -->
                                 <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteSuperAdmin<?php echo $row['id']; ?>" id="btn-custom-color">Delete</button>

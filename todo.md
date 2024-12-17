@@ -6,6 +6,7 @@
 
 ## 🚧 In Progress
 - [ ] Update Super Admin Account
+- [ ] Add alerts when adding, updating, or deleting accounts
 
 ## 📋 Pending Tasks
 - [ ] Adding Admin Account
@@ -16,4 +17,3 @@
 - [ ] Delete Staff Account
 
 ## 🔧 For enhancements
-- [ ] Add alerts when adding, updating, or deleting accounts

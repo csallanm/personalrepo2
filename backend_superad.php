@@ -8,56 +8,74 @@ if (isset($_POST['addsuperadmin'])) {
     $name = mysqli_real_escape_string($con, $_POST['name']);
     $email = mysqli_real_escape_string($con, $_POST['email']);
     $password = mysqli_real_escape_string($con, $_POST['password']);
+    $errors = []; // Initialize an array for errors
 
-    // check if the password does not meet the requirements
-    /*
-
-    Password requirement:
-    6   characters long, at least one symbol or number, capital letter first
-
-    */
-
+    // Password validation
     if (!preg_match('/^[A-Z]/', $password)) {
-        $errors['password'] = "Password must start with an uppercase letter.";
-    } else if (!preg_match('/[0-9!@#$%^&*(),.?":{}|<>]/', $password)) {
-        $errors['password'] = "Password must contain at least one number or special character.";
+        $errors[] = "Password must start with an uppercase letter.";
+    }
+    if (!preg_match('/[0-9!@#$%^&*(),.?":{}|<>]/', $password)) {
+        $errors[] = "Password must contain at least one number or special character.";
     }
 
-    // Check if the email already exist
+    // Email uniqueness check
     $check_email = "SELECT * FROM tblusers WHERE email = ?";
     $stmt = $con->prepare($check_email);
     $stmt->bind_param("s", $email);
     $stmt->execute();
-
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
-        $errors['email'] = "The email already exists";
+        $errors[] = "The email already exists.";
     }
 
-    // If no errors found, proceed with adding super admin
-    $add_superadmin = "INSERT INTO tblusers (name, email, password, code, role_id, status) VALUES (?, ?, ?, ?, ?, ?)";
-    $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-    $autoverify = "verified";
-    $code = 0;
-    $role_id = 2;
-    $addstmt = $con->prepare($add_superadmin);
+    if (empty($errors)) {
+        // If no errors, proceed with adding the super admin
+        $add_superadmin = "INSERT INTO tblusers (name, email, password, code, role_id, status) VALUES (?, ?, ?, ?, ?, ?)";
+        $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+        $autoverify = "verified";
+        $code = 0;
+        $role_id = 2;
+        $addstmt = $con->prepare($add_superadmin);
 
-    if ($addstmt) {
-        $addstmt->bind_param("sssiis", $name, $email, $hashedPassword, $code, $role_id, $autoverify);
-
-        if ($addstmt->execute()) {
-            header("Location: superadminmanager.php");
-            exit;
+        if ($addstmt) {
+            $addstmt->bind_param("sssiis", $name, $email, $hashedPassword, $code, $role_id, $autoverify);
+            if ($addstmt->execute()) {
+                $_SESSION['success'] = "Super admin added successfully.";
+                header("Location: superadminmanager.php");
+                exit();
+            } else {
+                $_SESSION['errors'][] = "Failed to add super admin. Please try again.";
+            }
+            $addstmt->close();
+        } else {
+            $_SESSION['errors'][] = "Database error: Unable to prepare statement.";
         }
-
-        $addstmt->close();
     } else {
-        $_SESSION['errors'] = ["Database error: Unable to prepare statement."];
-        header("Location: superadminmanager.php");
-        exit();
+        $_SESSION['errors'] = $errors; // Store validation errors in the session
     }
+    header("Location: superadminmanager.php");
+    exit();
 }
+
+// Edit Super Admin (populate data)
+if (isset($_POST['populate']) && isset($_POST['id'])) {
+    $id = intval($_POST['id']); // Sanitize input
+    $query = "SELECT name, email FROM tblusers WHERE id = ?";
+    $stmt = $con->prepare($query);
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($row = $result->fetch_assoc()) {
+        echo json_encode(['success' => true, 'name' => $row['name'], 'email' => $row['email']]);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'User not found.']);
+    }
+
+    exit;
+}
+
 
 // Delete Super Admin
 if (isset($_POST['deletesuperadmin'])) {
@@ -70,21 +88,14 @@ if (isset($_POST['deletesuperadmin'])) {
     if ($deletestmt) {
         $deletestmt->bind_param("i", $id); // Bind the id parameter
         if ($deletestmt->execute()) {
-            // Success: Redirect with a success message
             $_SESSION['success'] = "Super admin account deleted successfully.";
-            header("Location: superadminmanager.php");
-            exit();
         } else {
-            // Query execution error
-            $_SESSION['errors'] = ["Unable to delete the account. Please try again."];
-            header("Location: superadminmanager.php");
-            exit();
+            $_SESSION['errors'][] = "Unable to delete the account. Please try again.";
         }
         $deletestmt->close();
     } else {
-        // Statement preparation error
-        $_SESSION['errors'] = ["Database error: Unable to prepare statement."];
-        header("Location: superadminmanager.php");
-        exit();
+        $_SESSION['errors'][] = "Database error: Unable to prepare statement.";
     }
+    header("Location: superadminmanager.php");
+    exit();
 }

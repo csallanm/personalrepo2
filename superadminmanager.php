@@ -209,11 +209,96 @@ $result = $stmt->get_result();
         </div>
     </div>
 
-    <!-- Edit Super Admin Add Modal (soon) -->
+    <!-- Edit Super Admin Add Modal -->
+    <div class="modal fade" id="editSuperAdmin" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit Super Admin</h1>
+                </div>
+                <div class="modal-body">
+                    <form action="backend_superad.php" method="POST">
+                        <div class="container">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <label for="inputInline" class="col-form-label">Full Name:</label>
+                                </div>
+                                <div class="col-auto">
+                                    <input id="custom-textbox" class="form-control" type="text" name="name" placeholder="">
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="md-2"></p>
+
+                        <div class="container">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <label for="inputInline" class="col-form-label">Email:</label>
+                                </div>
+                                <div class="col-auto">
+                                    <input id="custom-textbox" class="form-control" type="email" name="email" placeholder="">
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="md-2"></p>
+
+                        <div class="container">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <label for="inputInline" class="col-form-label">New Password:</label>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="input-group">
+                                        <input id="new-password-field" minlength="6" class="form-control" type="password" name="npassword" placeholder="">
+                                        <button type="button" id="toggle-password" class="btn btn-outline-secondary">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="md-2"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="btn-custom-color" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" name="addsuperadmin" id="btn-custom-color">Submit</button>
+                </div>
+            </div>
+            </form>
+        </div>
+    </div>
 
     <div class="container-fluid">
         <h1>Super Admin Account Manager <a href="#"><img align="right" src="assets/add_1000dp_000_FILL0_wght400_GRAD0_opsz48.svg" style="width: 35px; display: inline;" data-bs-toggle="modal" data-bs-target="#addSuperAdmin" class="circular-hover-dark"></a></h1>
         <p>To edit or update your own Super Admin account, go to <a href="accountsettings.php" style="text-decoration: none; color: maroon;">Account Settings</a> to update your account.</p>
+
+        <?php
+        if (isset($_SESSION['success']) && $_SESSION['success'] != '') {
+        ?>
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <strong>Success:</strong> <?php echo $_SESSION['success']; ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <?php
+            unset($_SESSION['success']); // Clear the session success message after displaying
+        }
+
+        if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
+            foreach ($_SESSION['errors'] as $error) {
+            ?>
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <strong>Error:</strong> <?php echo $error; ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+        <?php
+            }
+            unset($_SESSION['errors']); // Clear the session errors after displaying
+        }
+        ?>
+
 
         <hr>
 
@@ -233,7 +318,7 @@ $result = $stmt->get_result();
                         <td><?php echo htmlspecialchars($row['email']); ?></td>
                         <td><?php echo htmlspecialchars($row['role_name']); ?></td>
                         <td>
-                            <button class="btn btn-primary btn-sm" id="btn-custom-color"
+                            <button class="btn btn-primary btn-sm" data-id="<?php echo $row['id']; ?>" id="btn-custom-color" data-bs-target="#editSuperAdmin" data-bs-toggle="modal"
                                 <?php if ($fetch_info['role_id'] == 2 && $row['email'] == $fetch_info['email']) {
                                     echo 'style="display:none;"';
                                 } ?>>
@@ -278,6 +363,7 @@ $result = $stmt->get_result();
     </div>
 
     <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <script>
         document.getElementById('toggle-password').addEventListener('click', function() {
@@ -294,6 +380,38 @@ $result = $stmt->get_result();
                 toggleIcon.classList.add('fa-eye');
             }
         })
+
+        // Data populate
+        $(document).ready(function() {
+            // Attach click event listener to Edit buttons
+            $('.btn[data-id]').on('click', function() {
+                const userId = $(this).data('id'); // Get user ID from the button's data-id attribute
+
+                // Send AJAX request to fetch user details
+                $.ajax({
+                    url: 'backend_superad.php',
+                    type: 'POST',
+                    data: {
+                        populate: true,
+                        id: userId
+                    },
+                    dataType: 'json', // Expect JSON response
+                    success: function(response) {
+                        if (response.success) {
+                            // Populate the modal fields with data from the response
+                            $('#editSuperAdmin input[name="name"]').val(response.name);
+                            $('#editSuperAdmin input[name="email"]').val(response.email);
+                        } else {
+                            alert('Failed to fetch user data. Please try again.');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error:', error);
+                        alert('An error occurred while fetching user data. Please try again.');
+                    }
+                });
+            });
+        });
     </script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">

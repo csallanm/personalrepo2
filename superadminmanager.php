@@ -229,6 +229,8 @@ $result = $stmt->get_result();
                             </div>
                         </div>
 
+                        <input type="hidden" name="id" value="<?php echo $super_admin_role_id; ?>">
+
                         <p class="md-2"></p>
 
                         <div class="container">
@@ -264,7 +266,7 @@ $result = $stmt->get_result();
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" id="btn-custom-color" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" name="addsuperadmin" id="btn-custom-color">Submit</button>
+                    <button type="submit" class="btn btn-primary" name="updatesuperadmin" id="btn-custom-color">Submit</button>
                 </div>
             </div>
             </form>
@@ -401,6 +403,7 @@ $result = $stmt->get_result();
                             // Populate the modal fields with data from the response
                             $('#editSuperAdmin input[name="name"]').val(response.name);
                             $('#editSuperAdmin input[name="email"]').val(response.email);
+                            $('#editSuperAdmin input[name="id"]').val(response.id);
                         } else {
                             alert('Failed to fetch user data. Please try again.');
                         }

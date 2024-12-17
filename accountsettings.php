@@ -38,37 +38,48 @@ if (isset($_POST['updateacc'])) {
     $new_password = $_POST['password'];
     $confirm_password = $_POST['cpassword'];
 
+    // Validate email format
+    if (!filter_var($new_email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = "$new_email is not valid.";
+    }
     // Check if the new passwords match
-    if (!empty($new_password) && $new_password !== $confirm_password) {
+    elseif (!empty($new_password) && $new_password !== $confirm_password) {
         $errors[] = "Passwords do not match.";
     } elseif (!empty($new_password) && !preg_match('/^[A-Z]/', $new_password)) {
         $errors[] = "Password must start with an uppercase letter.";
     } elseif (!empty($new_password) && !preg_match('/[0-9!@#$%^&*(),.?":{}|<>]/', $new_password)) {
         $errors[] = "Password must contain at least one number or special character.";
     } else {
-        // If new password is provided, hash it
-        if (!empty($new_password)) {
-            $hashed_password = password_hash($new_password, PASSWORD_BCRYPT);
-        } else {
-            $hashed_password = $current_password; // Retain current password if new one is empty
-        }
+        // Check if the new email already exists, excluding the current user
+        $check_email_sql = "SELECT email FROM tblusers WHERE email = '$new_email' AND email != '$email'";
+        $check_email_result = mysqli_query($con, $check_email_sql);
 
-        // Prepare update query
-        $update_sql = "UPDATE tblusers SET name='$name', email='$new_email', password='$hashed_password' WHERE email='$email'";
-
-        // Execute update query
-        if (mysqli_query($con, $update_sql)) {
-            // Update session with new email after successful update
-            $_SESSION['email'] = $new_email;
-            $_SESSION['success_message'] = "Account updated successfully."; // Set success message
-            header("Location: accountsettings.php"); // Redirect to the same page to avoid resubmission
-            exit();
+        if (mysqli_num_rows($check_email_result) > 0) {
+            $errors[] = "The email address is already in use.";
         } else {
-            $errors[] = "Error updating account: " . mysqli_error($con);
+            // If new password is provided, hash it
+            if (!empty($new_password)) {
+                $hashed_password = password_hash($new_password, PASSWORD_BCRYPT);
+            } else {
+                $hashed_password = $current_password; // Retain current password if new one is empty
+            }
+
+            // Prepare update query
+            $update_sql = "UPDATE tblusers SET name='$name', email='$new_email', password='$hashed_password' WHERE email='$email'";
+
+            // Execute update query
+            if (mysqli_query($con, $update_sql)) {
+                // Update session with new email after successful update
+                $_SESSION['email'] = $new_email;
+                $_SESSION['success_message'] = "Account updated successfully."; // Set success message
+                header("Location: accountsettings.php"); // Redirect to the same page to avoid resubmission
+                exit();
+            } else {
+                $errors[] = "Error updating account: " . mysqli_error($con);
+            }
         }
     }
 }
-
 
 
 // Handle account deletion with AJAX (DEPRECATED)

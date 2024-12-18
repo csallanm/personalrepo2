@@ -18,7 +18,6 @@ if ($email != false && $password != false) {
                 header('Location: resetcode.php');
             }
 
-            // role based access
             if ($role_id != 2) {
                 header('Location: homepage.php');
                 exit();
@@ -31,13 +30,12 @@ if ($email != false && $password != false) {
     header('Location: login.php');
 }
 
-
-// fetch admin
+// fetch super admin
 $fetch_query = "SELECT id, name, email, tblroles.role_name FROM tblusers JOIN tblroles ON tblusers.role_id = tblroles.role_id WHERE tblusers.role_id = ?;";
 
 $stmt = $con->prepare($fetch_query);
-$admin_role_id = 1;
-$stmt->bind_param("i", $admin_role_id);
+$super_admin_role_id = 2;
+$stmt->bind_param("i", $super_admin_role_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -55,7 +53,7 @@ $offset = ($page - 1) * $resultsPerPage;
 $sql = "SELECT users.id, users.name, users.email, roles.role_name
         FROM tblusers users
         JOIN tblroles roles ON users.role_id = roles.role_id
-        WHERE users.role_id = 1";
+        WHERE users.role_id = 2";
 
 if ($search != '') {
     // Add search filter based on name only (remove email search)
@@ -73,7 +71,7 @@ if ($result === false) {
 }
 
 // Get the total number of rows for pagination calculation
-$totalResultQuery = "SELECT COUNT(*) AS total FROM tblusers WHERE role_id = 1";
+$totalResultQuery = "SELECT COUNT(*) AS total FROM tblusers WHERE role_id = 2";
 if ($search != '') {
     $totalResultQuery .= " AND name LIKE '%$search%'";
 }
@@ -91,7 +89,7 @@ $totalPages = ceil($totalRows / $resultsPerPage);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Manager - Student Archiving System</title>
+    <title>Head Admin Manager - Student Archiving System</title>
     <link rel="icon" type="image/x-icon" href="assets/euC.png">
     <link rel="stylesheet" href="css/bootstrap.min.css" />
     <link rel="stylesheet" href="customcolors.css" />
@@ -211,15 +209,15 @@ $totalPages = ceil($totalRows / $resultsPerPage);
     </div>
     <!-- ABOUT MODAL -->
 
-    <!-- add admin modal -->
-    <div class="modal fade" id="addAdmin" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <!-- Super Admin Add Modal -->
+    <div class="modal fade" id="addSuperAdmin" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Add Admin</h1>
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Add Head Admin</h1>
                 </div>
                 <div class="modal-body">
-                    <form action="backend_admin.php" method="POST">
+                    <form action="backend_superad.php" method="POST">
                         <div class="container">
                             <div class="row align-items-center">
                                 <div class="col-auto">
@@ -266,22 +264,22 @@ $totalPages = ceil($totalRows / $resultsPerPage);
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" id="btn-custom-color" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" name="addadmin" id="btn-custom-color">Submit</button>
+                    <button type="submit" class="btn btn-primary" name="addsuperadmin" id="btn-custom-color">Submit</button>
                 </div>
             </div>
             </form>
         </div>
     </div>
 
-    <!-- edit admin modal -->
-    <div class="modal fade" id="editAdmin" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <!-- Edit Super Admin Add Modal -->
+    <div class="modal fade" id="editSuperAdmin" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit Admin</h1>
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit Head Admin</h1>
                 </div>
                 <div class="modal-body">
-                    <form action="backend_admin.php" method="POST">
+                    <form action="backend_superad.php" method="POST">
                         <div class="container">
                             <div class="row align-items-center">
                                 <div class="col-auto">
@@ -366,7 +364,7 @@ $totalPages = ceil($totalRows / $resultsPerPage);
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" id="btn-custom-color" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" name="updateadmin" id="btn-custom-color">Submit</button>
+                    <button type="submit" class="btn btn-primary" name="updatesuperadmin" id="btn-custom-color">Submit</button>
                 </div>
             </div>
             </form>
@@ -374,7 +372,8 @@ $totalPages = ceil($totalRows / $resultsPerPage);
     </div>
 
     <div class="container-fluid">
-        <h1>Admin Account Manager <a href="#"><img align="right" src="assets/add_1000dp_000_FILL0_wght400_GRAD0_opsz48.svg" style="width: 35px; display: inline;" data-bs-toggle="modal" data-bs-target="#addAdmin" class="circular-hover-dark"></a></h1>
+        <h1>Head Admin Account Manager <a href="#"><img align="right" src="assets/add_1000dp_000_FILL0_wght400_GRAD0_opsz48.svg" style="width: 35px; display: inline;" data-bs-toggle="modal" data-bs-target="#addSuperAdmin" class="circular-hover-dark"></a></h1>
+        <p>To edit or update your own Head Admin account, go to <a href="accountsettings.php" style="text-decoration: none; color: maroon;">Account Settings</a> to update your account.</p>
 
         <!-- Display Success/Errors if any -->
         <?php if (isset($_SESSION['success']) && $_SESSION['success'] != ''): ?>
@@ -400,7 +399,7 @@ $totalPages = ceil($totalRows / $resultsPerPage);
         <!-- Search Form -->
         <div class="input-group mb-0 justify-content-center">
             <form method="GET" action="" style="display: flex; width: 50%;">
-                <input type="text" class="form-control" name="search" placeholder="Search Admin" aria-label="Search" aria-describedby="basic-addon2" value="<?php echo isset($_GET['search']) ? $_GET['search'] : ''; ?>" style="background-color:rgb(255, 233, 233);">
+                <input type="text" class="form-control" name="search" placeholder="Search Head Admin" aria-label="Search" aria-describedby="basic-addon2" value="<?php echo isset($_GET['search']) ? $_GET['search'] : ''; ?>" style="background-color:rgb(255, 233, 233);">
                 <button class="btn btn-light" type="submit" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
                     <img src="assets/search_1000dp_000000_FILL0_wght400_GRAD0_opsz48.svg" style="width: 20px; height: 20px;">
                 </button>
@@ -409,6 +408,7 @@ $totalPages = ceil($totalRows / $resultsPerPage);
 
         <br>
 
+        <!-- Table for Super Admins -->
         <table class="table table-striped table-bordered table-danger" style="max-width: 800px; margin: 0 auto;">
             <thead>
                 <tr>
@@ -426,7 +426,7 @@ $totalPages = ceil($totalRows / $resultsPerPage);
                             <td><?php echo htmlspecialchars($row['email']); ?></td>
                             <td><?php echo htmlspecialchars($row['role_name']); ?></td>
                             <td>
-                                <button class="btn btn-primary btn-sm" data-id="<?php echo $row['id']; ?>" id="btn-custom-color" data-bs-target="#editAdmin" data-bs-toggle="modal"
+                                <button class="btn btn-primary btn-sm" data-id="<?php echo $row['id']; ?>" id="btn-custom-color" data-bs-target="#editSuperAdmin" data-bs-toggle="modal"
                                     <?php if ($fetch_info['role_id'] == 2 && $row['email'] == $fetch_info['email']) {
                                         echo 'style="display:none;"';
                                     } ?>>
@@ -434,26 +434,26 @@ $totalPages = ceil($totalRows / $resultsPerPage);
                                 </button>
                                 <?php if (!($fetch_info['role_id'] == 2 && $row['email'] == $fetch_info['email'])): ?>
                                     <!-- Delete Button to Open Modal -->
-                                    <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteAdmin<?php echo $row['id']; ?>" id="btn-custom-color">Delete</button>
+                                    <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteSuperAdmin<?php echo $row['id']; ?>" id="btn-custom-color">Delete</button>
                                 <?php endif; ?>
                             </td>
 
-                            <!-- Modal for Each Admin -->
-                            <div class="modal fade" id="deleteAdmin<?php echo $row['id']; ?>" tabindex="-1" aria-labelledby="deleteSuperAdminLabel" aria-hidden="true">
+                            <!-- Modal for Each Super Admin -->
+                            <div class="modal fade" id="deleteSuperAdmin<?php echo $row['id']; ?>" tabindex="-1" aria-labelledby="deleteSuperAdminLabel" aria-hidden="true">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="deleteSuperAdminLabel">Delete Admin?</h5>
+                                            <h5 class="modal-title" id="deleteSuperAdminLabel">Delete Super Admin?</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body">
                                             Are you sure you want to delete <strong><?php echo htmlspecialchars($row['name']); ?></strong>?
-                                            <form action="backend_admin.php" method="POST">
+                                            <form action="backend_superad.php" method="POST">
                                                 <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" id="btn-custom-color" data-bs-dismiss="modal">Cancel</button>
-                                            <button type="submit" name="deleteadmin" id="btn-custom-color" class="btn btn-danger">Delete</button>
+                                            <button type="submit" name="deletesuperadmin" id="btn-custom-color" class="btn btn-danger">Delete</button>
                                         </div>
                                         </form>
                                     </div>
@@ -464,7 +464,7 @@ $totalPages = ceil($totalRows / $resultsPerPage);
                     <?php endwhile; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="4" class="text-center"><strong>No Admin found.</strong> Try to add new one or check spelling when you search.</td>
+                        <td colspan="4" class="text-center"><strong>No Head Admin found.</strong> Try to add new one or check spelling when you search.</td>
                     </tr>
                 <?php endif; ?>
             </tbody>
@@ -544,7 +544,7 @@ $totalPages = ceil($totalRows / $resultsPerPage);
 
                 // Send AJAX request to fetch user details
                 $.ajax({
-                    url: 'backend_admin.php',
+                    url: 'backend_superad.php',
                     type: 'POST',
                     data: {
                         populate: true,
@@ -554,12 +554,12 @@ $totalPages = ceil($totalRows / $resultsPerPage);
                     success: function(response) {
                         if (response.success) {
                             // Populate the modal fields with data from the response
-                            $('#editAdmin input[name="name"]').val(response.name);
-                            $('#editAdmin input[name="email"]').val(response.email);
-                            $('#editAdmin input[name="id"]').val(response.id);
+                            $('#editSuperAdmin input[name="name"]').val(response.name);
+                            $('#editSuperAdmin input[name="email"]').val(response.email);
+                            $('#editSuperAdmin input[name="id"]').val(response.id);
 
                             // Set the role in the select dropdown using the role_id
-                            $('#editAdmin select[name="role"]').val(response.role_id); // Set the role_id directly here
+                            $('#editSuperAdmin select[name="role"]').val(response.role_id); // Set the role_id directly here
                         } else {
                             alert('Failed to fetch user data. Please try again.');
                         }

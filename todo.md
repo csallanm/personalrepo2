@@ -16,15 +16,19 @@
 - [x] Search users feature (super admin, admin ok)
 - [x] Promotion and Demotion of roles for Super Admin
 - [x] Pagination in every role of account managers (Super Admin, Admin ok)
+- [x] FILTER_VALIDATE_EMAIL for adding and editing students
 
 ## 🚧 In Progress
 
 
 ## 📋 Pending Tasks
-- [ ] FILTER_VALIDATE_EMAIL for adding and editing students
+
 
 ## 🔧 For enhancements
 
+## Whole System Retest
+- [ ] Login
+- [ ] 
 
 ## Legend
 x - Done

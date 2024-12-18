@@ -43,6 +43,11 @@ if (isset($_POST['submit'])) {
         $errors[] = 'The student ID already exists. Please enter a unique student ID.';
     }
 
+    // Validate email (if provided)
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = "$email is not valid.";
+    }
+
     // Validate profile image
     $fileName = $_FILES["image"]["name"];
     $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
@@ -403,6 +408,11 @@ if (isset($_POST['update_data'])) {
         }
 
         return $newFileName;
+    }
+
+    // Validate email (if provided)
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = "$email is not valid.";
     }
 
     // Only proceed if there are no duplicates or other errors

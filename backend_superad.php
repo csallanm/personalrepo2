@@ -46,8 +46,8 @@ if (isset($_POST['addsuperadmin'])) {
         if ($addstmt) {
             $addstmt->bind_param("sssiis", $name, $email, $hashedPassword, $code, $role_id, $autoverify);
             if ($addstmt->execute()) {
-                $_SESSION['success'] = "Super admin added successfully.";
-                header("Location: superadminmanager.php");
+                $_SESSION['success'] = "Head admin added successfully.";
+                header("Location: headadminmanager.php");
                 exit();
             } else {
                 $_SESSION['errors'][] = "Failed to add super admin. Please try again.";
@@ -59,7 +59,7 @@ if (isset($_POST['addsuperadmin'])) {
     } else {
         $_SESSION['errors'] = $errors; // Store validation errors in the session
     }
-    header("Location: superadminmanager.php");
+    header("Location: headadminmanager.php");
     exit();
 }
 
@@ -203,8 +203,8 @@ if (isset($_POST['updatesuperadmin'])) {
 
                 $stmt->bind_param("sssii", $name, $email, $hashedPassword, $role_id, $id);
                 if ($stmt->execute()) {
-                    $_SESSION['success'] = "Super admin updated successfully.";
-                    header("Location: superadminmanager.php");
+                    $_SESSION['success'] = "Head admin updated successfully.";
+                    header("Location: headadminmanager.php");
                     exit();
                 } else {
                     $errors[] = "Failed to update super admin. Please try again.";
@@ -222,7 +222,7 @@ if (isset($_POST['updatesuperadmin'])) {
     }
 
     // Redirect back to the super admin manager
-    header("Location: superadminmanager.php");
+    header("Location: headadminmanager.php");
     exit();
 }
 
@@ -238,7 +238,7 @@ if (isset($_POST['deletesuperadmin'])) {
     if ($deletestmt) {
         $deletestmt->bind_param("i", $id); // Bind the id parameter
         if ($deletestmt->execute()) {
-            $_SESSION['success'] = "Super admin account deleted successfully.";
+            $_SESSION['success'] = "Head admin account deleted successfully.";
         } else {
             $_SESSION['errors'][] = "Unable to delete the account. Please try again.";
         }
@@ -246,6 +246,6 @@ if (isset($_POST['deletesuperadmin'])) {
     } else {
         $_SESSION['errors'][] = "Database error: Unable to prepare statement.";
     }
-    header("Location: superadminmanager.php");
+    header("Location: headadminmanager.php");
     exit();
 }

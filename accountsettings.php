@@ -83,29 +83,6 @@ if (isset($_POST['updateacc'])) {
 
 
 // Handle account deletion with AJAX (DEPRECATED)
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteacc'])) {
-    $entered_password = $_POST['password'];
-
-    // Verify the password
-    if (password_verify($entered_password, $current_password)) {
-        // Prepare delete query
-        $delete_sql = "DELETE FROM tblusers WHERE email='$email'";
-
-        // Execute delete query
-        if (mysqli_query($con, $delete_sql)) {
-            // Logout user and respond with success
-            session_destroy();
-            echo json_encode(['success' => true]);
-            exit();
-        } else {
-            echo json_encode(['success' => false, 'message' => "Error deleting account: " . mysqli_error($con)]);
-            exit();
-        }
-    } else {
-        echo json_encode(['success' => false, 'message' => "Incorrect password. Please try again."]);
-        exit();
-    }
-}
 ?>
 
 <!DOCTYPE html>
@@ -149,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteacc'])) {
 
                 <?php if ($fetch_info['role_id'] == 2): ?>
                     <li><a class="dropdown-item" href="adminmanager.php">Admin Account Manager</a></li>
-                    <li><a class="dropdown-item" href="superadminmanager.php">Super Admin Account Manager</a></li>
+                    <li><a class="dropdown-item" href="headadminmanager.php">Head Admin Account Manager</a></li>
                 <?php endif; ?>
                 <li>
                     <hr class="dropdown-divider">
@@ -179,7 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteacc'])) {
                 </div>
                 <div class="modal-body">
                     <p><strong>EUC Student Archiving System</strong></p>
-                    <p>© 2024 - CCS Department</p>
+                    <p>© 2025 - CCS Department</p>
                     <p>This website is used for the registrar's office only. See user manual for guide.</p>
                 </div>
                 <div class="modal-footer">
@@ -189,62 +166,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteacc'])) {
         </div>
     </div>
     <!-- ABOUT MODAL -->
-
-    <!-- CONFIRM DELETE ACCOUNT MODAL (DEPRECATED)-->
-    <div class="modal fade" id="deleteaccModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Delete your account?</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to delete your account? Added students will not be deleted.</p>
-                    <p style="color: red"><strong>WARNING!</strong> THIS ACTION IS IRREVERSIBLE!</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="btn-custom-color">No</button>
-                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#enterpassModal">Delete account</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- CONFIRM DELETE ACCOUNT MODAL -->
-
-    <!-- ENTER PASSWORD MODAL -->
-    <div class="modal fade" id="enterpassModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Enter password</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="deleteAccountForm" method="POST">
-                        <p>Please enter your password first before you delete your account.</p>
-                        <p style="color: red"><strong>WARNING!</strong> THIS ACTION IS IRREVERSIBLE!</p>
-
-                        <div class="input-group">
-                            <input type="password" id="deletePassword" name="password" class="form-control" placeholder="" required>
-                            <div class="input-group-append">
-                                <button type="button" id="toggleDeletePassword" class="btn btn-outline-secondary">
-                                    <i class="fa fa-eye" aria-hidden="true"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <!-- Display modal-specific errors -->
-                        <div id="modalErrors" class="text-danger"></div>
-
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="btn-custom-color">Cancel</button>
-                            <button type="submit" class="btn btn-danger">Submit & Delete account</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- ENTER PASSWORD MODAL -->
 
     <div class="bg">
         <div class="container d-flex justify-content-center align-items-center" style="height: 85vh;">
@@ -335,40 +256,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteacc'])) {
 
         <script src="js/bootstrap.bundle.min.js"></script>
         <script>
-            // AJAX logic to handle account deletion
-            document.getElementById('deleteAccountForm').addEventListener('submit', function(e) {
-                e.preventDefault(); // Prevent the form from submitting the traditional way
-
-                // Get the password entered
-                const password = document.getElementById('deletePassword').value; // Use the new ID
-
-                // Create an AJAX request
-                const xhr = new XMLHttpRequest();
-                xhr.open('POST', 'accountsettings.php', true);
-                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-
-                // Set up what happens on successful data submission
-                xhr.onload = function() {
-                    if (xhr.status === 200) {
-                        // Parse the JSON response
-                        const response = JSON.parse(xhr.responseText);
-
-                        // If the account was deleted, redirect or close the modal
-                        if (response.success) {
-                            window.location.href = 'login.php?accountdeleted=true';
-                        } else {
-                            // Show error messages
-                            document.getElementById('modalErrors').innerHTML = response.message;
-                        }
-                    } else {
-                        // Handle error
-                        document.getElementById('modalErrors').innerHTML = 'An error occurred. Please try again.';
-                    }
-                };
-
-                // Send the request with the password
-                xhr.send('deleteacc=true&password=' + encodeURIComponent(password));
-            });
+            // AJAX logic to handle account deletion (DEPRECATED)
 
             document.addEventListener('DOMContentLoaded', () => {
                 const passwordInput = document.getElementById('password');

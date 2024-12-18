@@ -130,7 +130,7 @@ $totalPages = ceil($totalRows / $resultsPerPage);
 
                 <?php if ($fetch_info['role_id'] == 2): ?>
                     <li><a class="dropdown-item" href="adminmanager.php">Admin Account Manager</a></li>
-                    <li><a class="dropdown-item" href="superadminmanager.php">Super Admin Account Manager</a></li>
+                    <li><a class="dropdown-item" href="headadminmanager.php">Head Admin Account Manager</a></li>
                 <?php endif; ?>
                 <li>
                     <hr class="dropdown-divider">
@@ -141,7 +141,81 @@ $totalPages = ceil($totalRows / $resultsPerPage);
     </nav>
 </head>
 
+<style>
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .col-form-label {
+        min-width: 145px;
+        /* Set a minimum width to align labels consistently */
+        text-align: left;
+        /* Align text to the right to match input fields */
+    }
+
+    .form-control,
+    .form-select {
+        width: 100%;
+        /* Ensure inputs and selects are uniformly wide */
+    }
+
+    .info-container {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        /* spacing between rows */
+    }
+
+    /* Row styling */
+    .info-row {
+        display: flex;
+        align-items: center;
+    }
+
+    /* Label styling for consistent width */
+    .info-row strong {
+        min-width: 150px;
+        /* adjust width for alignment */
+        text-align: left;
+        padding-right: 10px;
+        /* space between label and value */
+        font-weight: bold;
+    }
+
+    /* Value styling */
+    .info-row span {
+        flex: 1;
+        /* occupies remaining space */
+        text-align: left;
+    }
+
+    .custom-select-width {
+        width: 205px;
+        /* Set your desired width */
+    }
+</style>
+
 <body style="overflow-x: hidden;">
+
+    <!-- ABOUT MODAL -->
+    <div class="modal fade" id="aboutModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">About EUC Student Archiving System</h1>
+                </div>
+                <div class="modal-body">
+                    <p><strong>EUC Student Archiving System</strong></p>
+                    <p>© 2025 - CCS Department</p>
+                    <p>This website is used for the registrar's office only. See user manual for guide.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="btn-custom-color">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ABOUT MODAL -->
 
     <!-- add staff modal -->
     <div class="modal fade" id="addStaff" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -186,7 +260,7 @@ $totalPages = ceil($totalRows / $resultsPerPage);
                                 <div class="col-auto">
                                     <div class="input-group">
                                         <input id="password-field" minlength="6" class="form-control" type="password" name="password" placeholder="" required>
-                                        <button type="button" id="toggle-password" class="btn btn-outline-secondary">
+                                        <button type="button" id="toggle-password" class="btn btn-outline-secondary" style="border: none; outline: none;">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                     </div>
@@ -250,7 +324,7 @@ $totalPages = ceil($totalRows / $resultsPerPage);
                                 <div class="col-auto">
                                     <div class="input-group">
                                         <input id="new-password-field" minlength="6" class="form-control" type="password" name="npassword" placeholder="">
-                                        <button type="button" id="new-toggle-password" class="btn btn-outline-secondary">
+                                        <button type="button" id="new-toggle-password" class="btn btn-outline-secondary" style="border: none; outline: none;">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                     </div>
@@ -271,7 +345,7 @@ $totalPages = ceil($totalRows / $resultsPerPage);
                                             <select class="form-select" name="role" aria-label="Default select example">
                                                 <option value="0" <?php echo ($fetch_info['role_id'] == 0 ? 'selected' : ''); ?>>Staff</option>
                                                 <option value="1" <?php echo ($fetch_info['role_id'] == 1 ? 'selected' : ''); ?>>Admin</option>
-                                                <option value="2" <?php echo ($fetch_info['role_id'] == 2 ? 'selected' : ''); ?>>Super Admin</option>
+                                                <option value="2" <?php echo ($fetch_info['role_id'] == 2 ? 'selected' : ''); ?>>Head Admin</option>
                                             </select>
                                         </div>
                                     </div>
@@ -285,7 +359,7 @@ $totalPages = ceil($totalRows / $resultsPerPage);
                                             <select class="form-select" name="role" aria-label="Default select example" hidden>
                                                 <option value="0" <?php echo ($fetch_info['role_id'] == 0 ? 'selected' : ''); ?>>Staff</option>
                                                 <option value="1" <?php echo ($fetch_info['role_id'] == 1 ? 'selected' : ''); ?>>Admin</option>
-                                                <option value="2" <?php echo ($fetch_info['role_id'] == 2 ? 'selected' : ''); ?>>Super Admin</option>
+                                                <option value="2" <?php echo ($fetch_info['role_id'] == 2 ? 'selected' : ''); ?>>Head Admin</option>
                                             </select>
                                         </div>
                                     </div>

@@ -69,7 +69,7 @@ $program = isset($_GET['program']) ? $_GET['program'] : 'All';
 
                 <?php if ($fetch_info['role_id'] == 2): ?>
                     <li><a class="dropdown-item" href="adminmanager.php">Admin Account Manager</a></li>
-                    <li><a class="dropdown-item" href="superadminmanager.php">Super Admin Account Manager</a></li>
+                    <li><a class="dropdown-item" href="headadminmanager.php">Head Admin Account Manager</a></li>
                 <?php endif; ?>
                 <li>
                     <hr class="dropdown-divider">
@@ -147,7 +147,7 @@ $program = isset($_GET['program']) ? $_GET['program'] : 'All';
                 </div>
                 <div class="modal-body">
                     <p><strong>EUC Student Archiving System</strong></p>
-                    <p>© 2024 - CCS Department</p>
+                    <p>© 2025 - CCS Department</p>
                     <p>This website is used for the registrar's office only. See user manual for guide.</p>
                 </div>
                 <div class="modal-footer">

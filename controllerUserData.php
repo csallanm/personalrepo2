@@ -57,7 +57,7 @@ $errors = array();
 }*/
 
 //if user click verification code submit button (DEPRECATED)
-if (isset($_POST['check'])) {
+/*if (isset($_POST['check'])) {
     $_SESSION['info'] = "";
     $otp_code = mysqli_real_escape_string($con, $_POST['otp']);
     $check_code = "SELECT * FROM tblusers WHERE code = $otp_code";
@@ -83,7 +83,7 @@ if (isset($_POST['check'])) {
     } else {
         $errors['otp-error'] = "Wrong code.";
     }
-}
+}*/
 
 //if user click login button
 if (isset($_POST['login'])) {

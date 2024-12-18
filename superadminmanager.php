@@ -39,6 +39,48 @@ $stmt->bind_param("i", $super_admin_role_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
+// Define how many results per page
+$resultsPerPage = 10;
+
+// Get the current page from the URL, default to 1 if not set
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$search = isset($_GET['search']) ? mysqli_real_escape_string($con, $_GET['search']) : '';
+
+// Calculate the offset for the SQL query
+$offset = ($page - 1) * $resultsPerPage;
+
+// Modify your SQL query to search for super admins
+$sql = "SELECT users.id, users.name, users.email, roles.role_name
+        FROM tblusers users
+        JOIN tblroles roles ON users.role_id = roles.role_id
+        WHERE users.role_id = 2";
+
+if ($search != '') {
+    // Add search filter based on name only (remove email search)
+    $sql .= " AND users.name LIKE '%$search%'";
+}
+
+// Add LIMIT and OFFSET for pagination
+$sql .= " LIMIT $resultsPerPage OFFSET $offset";
+
+$result = $con->query($sql);
+
+// Check if the query was successful
+if ($result === false) {
+    die("Error: " . $con->error);
+}
+
+// Get the total number of rows for pagination calculation
+$totalResultQuery = "SELECT COUNT(*) AS total FROM tblusers WHERE role_id = 2";
+if ($search != '') {
+    $totalResultQuery .= " AND name LIKE '%$search%'";
+}
+$totalResult = $con->query($totalResultQuery);
+$totalRow = $totalResult->fetch_assoc();
+$totalRows = $totalRow['total'];
+
+// Calculate the total number of pages
+$totalPages = ceil($totalRows / $resultsPerPage);
 ?>
 
 <!DOCTYPE html>
@@ -254,13 +296,49 @@ $result = $stmt->get_result();
                                 <div class="col-auto">
                                     <div class="input-group">
                                         <input id="new-password-field" minlength="6" class="form-control" type="password" name="npassword" placeholder="">
-                                        <button type="button" id="toggle-password" class="btn btn-outline-secondary">
+                                        <button type="button" id="new-toggle-password" class="btn btn-outline-secondary">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                     </div>
                                 </div>
                             </div>
                         </div>
+
+                        <p class="md-2"></p>
+
+                        <?php if ($fetch_info['role_id'] == 2): ?>
+                            <div class="container">
+                                <div class="row align-items-center">
+                                    <div class="col-auto">
+                                        <label for="inputInline" class="col-form-label">Role:</label>
+                                    </div>
+                                    <div class="col-auto">
+                                        <div class="input-group">
+                                            <select class="form-select" name="role" aria-label="Default select example">
+                                                <option value="0" <?php echo ($fetch_info['role_id'] == 0 ? 'selected' : ''); ?>>Staff</option>
+                                                <option value="1" <?php echo ($fetch_info['role_id'] == 1 ? 'selected' : ''); ?>>Admin</option>
+                                                <option value="2" <?php echo ($fetch_info['role_id'] == 2 ? 'selected' : ''); ?>>Super Admin</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php else: ?>
+                            <div class="container">
+                                <div class="row align-items-center">
+                                    <div class="col-auto">
+                                        <div class="input-group">
+                                            <select class="form-select" name="role" aria-label="Default select example" hidden>
+                                                <option value="0" <?php echo ($fetch_info['role_id'] == 0 ? 'selected' : ''); ?>>Staff</option>
+                                                <option value="1" <?php echo ($fetch_info['role_id'] == 1 ? 'selected' : ''); ?>>Admin</option>
+                                                <option value="2" <?php echo ($fetch_info['role_id'] == 2 ? 'selected' : ''); ?>>Super Admin</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+
 
                         <p class="md-2"></p>
                 </div>
@@ -277,33 +355,40 @@ $result = $stmt->get_result();
         <h1>Super Admin Account Manager <a href="#"><img align="right" src="assets/add_1000dp_000_FILL0_wght400_GRAD0_opsz48.svg" style="width: 35px; display: inline;" data-bs-toggle="modal" data-bs-target="#addSuperAdmin" class="circular-hover-dark"></a></h1>
         <p>To edit or update your own Super Admin account, go to <a href="accountsettings.php" style="text-decoration: none; color: maroon;">Account Settings</a> to update your account.</p>
 
-        <?php
-        if (isset($_SESSION['success']) && $_SESSION['success'] != '') {
-        ?>
+        <!-- Display Success/Errors if any -->
+        <?php if (isset($_SESSION['success']) && $_SESSION['success'] != ''): ?>
             <div class="alert alert-warning alert-dismissible fade show" role="alert">
                 <strong>Success:</strong> <?php echo $_SESSION['success']; ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-            <?php
-            unset($_SESSION['success']); // Clear the session success message after displaying
-        }
+            <?php unset($_SESSION['success']); ?>
+        <?php endif; ?>
 
-        if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
-            foreach ($_SESSION['errors'] as $error) {
-            ?>
+        <?php if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])): ?>
+            <?php foreach ($_SESSION['errors'] as $error): ?>
                 <div class="alert alert-warning alert-dismissible fade show" role="alert">
                     <strong>Error:</strong> <?php echo $error; ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-        <?php
-            }
-            unset($_SESSION['errors']); // Clear the session errors after displaying
-        }
-        ?>
-
+            <?php endforeach; ?>
+            <?php unset($_SESSION['errors']); ?>
+        <?php endif; ?>
 
         <hr>
 
+        <!-- Search Form -->
+        <div class="input-group mb-0 justify-content-center">
+            <form method="GET" action="" style="display: flex; width: 50%;">
+                <input type="text" class="form-control" name="search" placeholder="Search Super Admin" aria-label="Search" aria-describedby="basic-addon2" value="<?php echo isset($_GET['search']) ? $_GET['search'] : ''; ?>" style="background-color:rgb(255, 233, 233);">
+                <button class="btn btn-light" type="submit" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                    <img src="assets/search_1000dp_000000_FILL0_wght400_GRAD0_opsz48.svg" style="width: 20px; height: 20px;">
+                </button>
+            </form>
+        </div>
+
+        <br>
+
+        <!-- Table for Super Admins -->
         <table class="table table-striped table-bordered table-danger" style="max-width: 800px; margin: 0 auto;">
             <thead>
                 <tr>
@@ -314,53 +399,86 @@ $result = $stmt->get_result();
                 </tr>
             </thead>
             <tbody>
-                <?php while ($row = $result->fetch_assoc()): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($row['name']); ?></td>
-                        <td><?php echo htmlspecialchars($row['email']); ?></td>
-                        <td><?php echo htmlspecialchars($row['role_name']); ?></td>
-                        <td>
-                            <button class="btn btn-primary btn-sm" data-id="<?php echo $row['id']; ?>" id="btn-custom-color" data-bs-target="#editSuperAdmin" data-bs-toggle="modal"
-                                <?php if ($fetch_info['role_id'] == 2 && $row['email'] == $fetch_info['email']) {
-                                    echo 'style="display:none;"';
-                                } ?>>
-                                Edit
-                            </button>
-                            <?php if (!($fetch_info['role_id'] == 2 && $row['email'] == $fetch_info['email'])): ?>
-                                <!-- Delete Button to Open Modal -->
-                                <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteSuperAdmin<?php echo $row['id']; ?>" id="btn-custom-color">Delete</button>
-                            <?php endif; ?>
-                        </td>
+                <?php if ($result->num_rows > 0): ?>
+                    <?php while ($row = $result->fetch_assoc()): ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($row['name']); ?></td>
+                            <td><?php echo htmlspecialchars($row['email']); ?></td>
+                            <td><?php echo htmlspecialchars($row['role_name']); ?></td>
+                            <td>
+                                <button class="btn btn-primary btn-sm" data-id="<?php echo $row['id']; ?>" id="btn-custom-color" data-bs-target="#editSuperAdmin" data-bs-toggle="modal"
+                                    <?php if ($fetch_info['role_id'] == 2 && $row['email'] == $fetch_info['email']) {
+                                        echo 'style="display:none;"';
+                                    } ?>>
+                                    Edit
+                                </button>
+                                <?php if (!($fetch_info['role_id'] == 2 && $row['email'] == $fetch_info['email'])): ?>
+                                    <!-- Delete Button to Open Modal -->
+                                    <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteSuperAdmin<?php echo $row['id']; ?>" id="btn-custom-color">Delete</button>
+                                <?php endif; ?>
+                            </td>
 
-                        <!-- Modal for Each Super Admin -->
-                        <div class="modal fade" id="deleteSuperAdmin<?php echo $row['id']; ?>" tabindex="-1" aria-labelledby="deleteSuperAdminLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="deleteSuperAdminLabel">Delete Super Admin?</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <!-- Modal for Each Super Admin -->
+                            <div class="modal fade" id="deleteSuperAdmin<?php echo $row['id']; ?>" tabindex="-1" aria-labelledby="deleteSuperAdminLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="deleteSuperAdminLabel">Delete Super Admin?</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Are you sure you want to delete <strong><?php echo htmlspecialchars($row['name']); ?></strong>?
+                                            <form action="backend_superad.php" method="POST">
+                                                <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" id="btn-custom-color" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" name="deletesuperadmin" id="btn-custom-color" class="btn btn-danger">Delete</button>
+                                        </div>
+                                        </form>
                                     </div>
-                                    <div class="modal-body">
-                                        Are you sure you want to delete <strong><?php echo htmlspecialchars($row['name']); ?></strong>?
-                                        <form action="backend_superad.php" method="POST">
-                                            <!-- Hidden field to pass the ID -->
-                                            <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" id="btn-custom-color" data-bs-dismiss="modal">Cancel</button>
-                                        <button type="submit" name="deletesuperadmin" id="btn-custom-color" class="btn btn-danger">Delete</button>
-                                    </div>
-                                    </form>
                                 </div>
                             </div>
-                        </div>
 
+                        </tr>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="4" class="text-center"><strong>No Super Admin found.</strong> Try to add new one or check spelling when you search.</td>
                     </tr>
-                <?php endwhile; ?>
+                <?php endif; ?>
             </tbody>
-
-
         </table>
+
+        <br>
+
+        <!-- Pagination -->
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center">
+                <!-- Previous -->
+                <li class="page-item <?php if ($page <= 1) echo 'disabled'; ?>">
+                    <a class="page-link" href="?page=<?php echo $page - 1; ?>&search=<?php echo $search; ?>" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+
+                <!-- Page Numbers -->
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                    <li class="page-item <?php if ($page == $i) echo 'active'; ?>">
+                        <a class="page-link" href="?page=<?php echo $i; ?>&search=<?php echo $search; ?>"><?php echo $i; ?></a>
+                    </li>
+                <?php endfor; ?>
+
+                <!-- Next Button -->
+                <li class="page-item <?php if ($page >= $totalPages) echo 'disabled'; ?>">
+                    <a class="page-link" href="?page=<?php echo $page + 1; ?>&search=<?php echo $search; ?>" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
     </div>
     </div>
 
@@ -370,6 +488,21 @@ $result = $stmt->get_result();
     <script>
         document.getElementById('toggle-password').addEventListener('click', function() {
             const passwordField = document.getElementById('password-field');
+            const toggleIcon = this.querySelector('i');
+
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleIcon.classList.add('fa-eye-slash');
+                toggleIcon.classList.remove('fa-eye');
+            } else {
+                passwordField.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        })
+
+        document.getElementById('new-toggle-password').addEventListener('click', function() {
+            const passwordField = document.getElementById('new-password-field');
             const toggleIcon = this.querySelector('i');
 
             if (passwordField.type === 'password') {
@@ -404,6 +537,9 @@ $result = $stmt->get_result();
                             $('#editSuperAdmin input[name="name"]').val(response.name);
                             $('#editSuperAdmin input[name="email"]').val(response.email);
                             $('#editSuperAdmin input[name="id"]').val(response.id);
+
+                            // Set the role in the select dropdown using the role_id
+                            $('#editSuperAdmin select[name="role"]').val(response.role_id); // Set the role_id directly here
                         } else {
                             alert('Failed to fetch user data. Please try again.');
                         }

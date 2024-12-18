@@ -4,7 +4,7 @@ session_start();
 include "connection.php";
 
 // Add Super Admin
-if (isset($_POST['addsuperadmin'])) {
+if (isset($_POST['addstaff'])) {
     $name = mysqli_real_escape_string($con, $_POST['name']);
     $email = mysqli_real_escape_string($con, $_POST['email']);
     $password = mysqli_real_escape_string($con, $_POST['password']);
@@ -36,21 +36,21 @@ if (isset($_POST['addsuperadmin'])) {
 
     if (empty($errors)) {
         // If no errors, proceed with adding the super admin
-        $add_superadmin = "INSERT INTO tblusers (name, email, password, code, role_id, status) VALUES (?, ?, ?, ?, ?, ?)";
+        $add_admin = "INSERT INTO tblusers (name, email, password, code, role_id, status) VALUES (?, ?, ?, ?, ?, ?)";
         $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
         $autoverify = "verified";
         $code = 0;
-        $role_id = 2;
-        $addstmt = $con->prepare($add_superadmin);
+        $role_id = 0;
+        $addstmt = $con->prepare($add_admin);
 
         if ($addstmt) {
             $addstmt->bind_param("sssiis", $name, $email, $hashedPassword, $code, $role_id, $autoverify);
             if ($addstmt->execute()) {
-                $_SESSION['success'] = "Super admin added successfully.";
-                header("Location: superadminmanager.php");
+                $_SESSION['success'] = "Staff added successfully.";
+                header("Location: accountmanager.php");
                 exit();
             } else {
-                $_SESSION['errors'][] = "Failed to add super admin. Please try again.";
+                $_SESSION['errors'][] = "Failed to add staff. Please try again.";
             }
             $addstmt->close();
         } else {
@@ -59,11 +59,11 @@ if (isset($_POST['addsuperadmin'])) {
     } else {
         $_SESSION['errors'] = $errors; // Store validation errors in the session
     }
-    header("Location: superadminmanager.php");
+    header("Location: accountmanager.php");
     exit();
 }
 
-// Edit Super Admin (populate data)
+// populate admin
 if (isset($_POST['populate']) && isset($_POST['id'])) {
     $id = intval($_POST['id']); // Sanitize input
 
@@ -101,11 +101,11 @@ if (isset($_POST['populate']) && isset($_POST['id'])) {
     exit;
 }
 
-// Update Super Admin Account
-if (isset($_POST['updatesuperadmin'])) {
+// update admin
+if (isset($_POST['updatestaff'])) {
     // Ensure the super admin ID is passed in the request for the update
     if (!isset($_POST['id'])) {
-        die("Error: Super admin ID not provided.");
+        die("Error: Admin ID not provided.");
     }
 
     $id = intval($_POST['id']); // Sanitize input
@@ -203,11 +203,11 @@ if (isset($_POST['updatesuperadmin'])) {
 
                 $stmt->bind_param("sssii", $name, $email, $hashedPassword, $role_id, $id);
                 if ($stmt->execute()) {
-                    $_SESSION['success'] = "Super admin updated successfully.";
-                    header("Location: superadminmanager.php");
+                    $_SESSION['success'] = "Staff updated successfully.";
+                    header("Location: accountmanager.php");
                     exit();
                 } else {
-                    $errors[] = "Failed to update super admin. Please try again.";
+                    $errors[] = "Failed to update staff. Please try again.";
                 }
                 $stmt->close();
             } else {
@@ -222,13 +222,12 @@ if (isset($_POST['updatesuperadmin'])) {
     }
 
     // Redirect back to the super admin manager
-    header("Location: superadminmanager.php");
+    header("Location: accountmanager.php");
     exit();
 }
 
-
-// Delete Super Admin
-if (isset($_POST['deletesuperadmin'])) {
+// delete admin
+if (isset($_POST['deletestaff'])) {
     $id = mysqli_real_escape_string($con, $_POST['id']); // Sanitize the input
 
     // Prepare the DELETE query
@@ -238,7 +237,7 @@ if (isset($_POST['deletesuperadmin'])) {
     if ($deletestmt) {
         $deletestmt->bind_param("i", $id); // Bind the id parameter
         if ($deletestmt->execute()) {
-            $_SESSION['success'] = "Super admin account deleted successfully.";
+            $_SESSION['success'] = "Staff account deleted successfully.";
         } else {
             $_SESSION['errors'][] = "Unable to delete the account. Please try again.";
         }
@@ -246,6 +245,6 @@ if (isset($_POST['deletesuperadmin'])) {
     } else {
         $_SESSION['errors'][] = "Database error: Unable to prepare statement.";
     }
-    header("Location: superadminmanager.php");
+    header("Location: accountmanager.php");
     exit();
 }

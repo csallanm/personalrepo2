@@ -19,7 +19,7 @@ if ($email != false && $password != false) {
             }
 
             // Role-based access
-            if($role_id != 1 && $role_id != 2){
+            if ($role_id != 1 && $role_id != 2) {
                 header('Location: homepage.php');
                 exit();
             }
@@ -31,6 +31,58 @@ if ($email != false && $password != false) {
     header('Location: login.php');
 }
 
+// fetch staff
+$fetch_query = "SELECT id, name, email, tblroles.role_name FROM tblusers JOIN tblroles ON tblusers.role_id = tblroles.role_id WHERE tblusers.role_id = ?;";
+
+$stmt = $con->prepare($fetch_query);
+$staff_role_id = 0;
+$stmt->bind_param("i", $staff_role_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+// Define how many results per page
+$resultsPerPage = 10;
+
+// Get the current page from the URL, default to 1 if not set
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$search = isset($_GET['search']) ? mysqli_real_escape_string($con, $_GET['search']) : '';
+
+// Calculate the offset for the SQL query
+$offset = ($page - 1) * $resultsPerPage;
+
+// Modify your SQL query to search for super admins
+$sql = "SELECT users.id, users.name, users.email, roles.role_name
+        FROM tblusers users
+        JOIN tblroles roles ON users.role_id = roles.role_id
+        WHERE users.role_id = 0";
+
+if ($search != '') {
+    // Add search filter based on name only (remove email search)
+    $sql .= " AND users.name LIKE '%$search%'";
+}
+
+// Add LIMIT and OFFSET for pagination
+$sql .= " LIMIT $resultsPerPage OFFSET $offset";
+
+$result = $con->query($sql);
+
+// Check if the query was successful
+if ($result === false) {
+    die("Error: " . $con->error);
+}
+
+// Get the total number of rows for pagination calculation
+$totalResultQuery = "SELECT COUNT(*) AS total FROM tblusers WHERE role_id = 0";
+if ($search != '') {
+    $totalResultQuery .= " AND name LIKE '%$search%'";
+}
+$totalResult = $con->query($totalResultQuery);
+$totalRow = $totalResult->fetch_assoc();
+$totalRows = $totalRow['total'];
+
+// Calculate the total number of pages
+$totalPages = ceil($totalRows / $resultsPerPage);
+
 ?>
 
 <!DOCTYPE html>
@@ -39,7 +91,7 @@ if ($email != false && $password != false) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Account Manager - Student Archiving System</title>
+    <title>Staff Account Manager - Student Archiving System</title>
     <link rel="icon" type="image/x-icon" href="assets/euC.png">
     <link rel="stylesheet" href="css/bootstrap.min.css" />
     <link rel="stylesheet" href="customcolors.css" />
@@ -91,12 +143,205 @@ if ($email != false && $password != false) {
 
 <body style="overflow-x: hidden;">
 
+    <!-- add staff modal -->
+    <div class="modal fade" id="addStaff" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Add Staff</h1>
+                </div>
+                <div class="modal-body">
+                    <form action="backend_staff.php" method="POST">
+                        <div class="container">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <label for="inputInline" class="col-form-label">Full Name:</label>
+                                </div>
+                                <div class="col-auto">
+                                    <input id="custom-textbox" class="form-control" type="text" name="name" placeholder="" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="md-2"></p>
+
+                        <div class="container">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <label for="inputInline" class="col-form-label">Email:</label>
+                                </div>
+                                <div class="col-auto">
+                                    <input id="custom-textbox" class="form-control" type="email" name="email" placeholder="" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="md-2"></p>
+
+                        <div class="container">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <label for="inputInline" class="col-form-label">Password:</label>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="input-group">
+                                        <input id="password-field" minlength="6" class="form-control" type="password" name="password" placeholder="" required>
+                                        <button type="button" id="toggle-password" class="btn btn-outline-secondary">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="md-2"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="btn-custom-color" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" name="addstaff" id="btn-custom-color">Submit</button>
+                </div>
+            </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- edit staff modal -->
+    <div class="modal fade" id="editStaff" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit Staff</h1>
+                </div>
+                <div class="modal-body">
+                    <form action="backend_staff.php" method="POST">
+                        <div class="container">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <label for="inputInline" class="col-form-label">Full Name:</label>
+                                </div>
+                                <div class="col-auto">
+                                    <input id="custom-textbox" class="form-control" type="text" name="name" placeholder="">
+                                </div>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="id" value="<?php echo $super_admin_role_id; ?>">
+
+                        <p class="md-2"></p>
+
+                        <div class="container">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <label for="inputInline" class="col-form-label">Email:</label>
+                                </div>
+                                <div class="col-auto">
+                                    <input id="custom-textbox" class="form-control" type="email" name="email" placeholder="">
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="md-2"></p>
+
+                        <div class="container">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <label for="inputInline" class="col-form-label">New Password:</label>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="input-group">
+                                        <input id="new-password-field" minlength="6" class="form-control" type="password" name="npassword" placeholder="">
+                                        <button type="button" id="new-toggle-password" class="btn btn-outline-secondary">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="md-2"></p>
+
+                        <?php if ($fetch_info['role_id'] == 2): ?>
+                            <div class="container">
+                                <div class="row align-items-center">
+                                    <div class="col-auto">
+                                        <label for="inputInline" class="col-form-label">Role:</label>
+                                    </div>
+                                    <div class="col-auto">
+                                        <div class="input-group">
+                                            <select class="form-select" name="role" aria-label="Default select example">
+                                                <option value="0" <?php echo ($fetch_info['role_id'] == 0 ? 'selected' : ''); ?>>Staff</option>
+                                                <option value="1" <?php echo ($fetch_info['role_id'] == 1 ? 'selected' : ''); ?>>Admin</option>
+                                                <option value="2" <?php echo ($fetch_info['role_id'] == 2 ? 'selected' : ''); ?>>Super Admin</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php else: ?>
+                            <div class="container">
+                                <div class="row align-items-center">
+                                    <div class="col-auto">
+                                        <div class="input-group">
+                                            <select class="form-select" name="role" aria-label="Default select example" hidden>
+                                                <option value="0" <?php echo ($fetch_info['role_id'] == 0 ? 'selected' : ''); ?>>Staff</option>
+                                                <option value="1" <?php echo ($fetch_info['role_id'] == 1 ? 'selected' : ''); ?>>Admin</option>
+                                                <option value="2" <?php echo ($fetch_info['role_id'] == 2 ? 'selected' : ''); ?>>Super Admin</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+
+
+                        <p class="md-2"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="btn-custom-color" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" name="updatestaff" id="btn-custom-color">Submit</button>
+                </div>
+            </div>
+            </form>
+        </div>
+    </div>
+
     <div class="container-fluid">
         <h1>Staff Account Manager <a href="#"><img align="right"
                     src="assets/add_1000dp_000_FILL0_wght400_GRAD0_opsz48.svg" style="width: 35px; display: inline;"
-                    data-bs-toggle="modal" data-bs-target="#staticBackdrop" class="circular-hover-dark"></a></h1>
+                    data-bs-toggle="modal" data-bs-target="#addStaff" class="circular-hover-dark"></a></h1>
+
+        <!-- Display Success/Errors if any -->
+        <?php if (isset($_SESSION['success']) && $_SESSION['success'] != ''): ?>
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <strong>Success:</strong> <?php echo $_SESSION['success']; ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <?php unset($_SESSION['success']); ?>
+        <?php endif; ?>
+
+        <?php if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])): ?>
+            <?php foreach ($_SESSION['errors'] as $error): ?>
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <strong>Error:</strong> <?php echo $error; ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php endforeach; ?>
+            <?php unset($_SESSION['errors']); ?>
+        <?php endif; ?>
 
         <hr>
+
+        <!-- Search Form -->
+        <div class="input-group mb-0 justify-content-center">
+            <form method="GET" action="" style="display: flex; width: 50%;">
+                <input type="text" class="form-control" name="search" placeholder="Search Staff" aria-label="Search" aria-describedby="basic-addon2" value="<?php echo isset($_GET['search']) ? $_GET['search'] : ''; ?>" style="background-color:rgb(255, 233, 233);">
+                <button class="btn btn-light" type="submit" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                    <img src="assets/search_1000dp_000000_FILL0_wght400_GRAD0_opsz48.svg" style="width: 20px; height: 20px;">
+                </button>
+            </form>
+        </div>
+
+        <br>
 
         <table class="table table-striped table-bordered table-danger" style="max-width: 800px; margin: 0 auto;">
             <thead>
@@ -108,16 +353,158 @@ if ($email != false && $password != false) {
                 </tr>
             </thead>
             <tbody>
-                <th>Test</th>
-                <th>Test</th>
-                <th>Test</th>
-                <th><button class="btn btn-primary btn-sm">Edit</button> <button class="btn btn-danger btn-sm">Delete</button></th>
+                <?php if ($result->num_rows > 0): ?>
+                    <?php while ($row = $result->fetch_assoc()): ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($row['name']); ?></td>
+                            <td><?php echo htmlspecialchars($row['email']); ?></td>
+                            <td><?php echo htmlspecialchars($row['role_name']); ?></td>
+                            <td>
+                                <button class="btn btn-primary btn-sm" data-id="<?php echo $row['id']; ?>" id="btn-custom-color" data-bs-target="#editStaff" data-bs-toggle="modal"
+                                    <?php if ($fetch_info['role_id'] == 2 && $row['email'] == $fetch_info['email']) {
+                                        echo 'style="display:none;"';
+                                    } ?>>
+                                    Edit
+                                </button>
+                                <?php if ($fetch_info['role_id'] == 2 && $fetch_info['email'] != $row['email']): ?>
+                                    <!-- Delete Button to Open Modal -->
+                                    <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteStaff<?php echo $row['id']; ?>" id="btn-custom-color">Delete</button>
+                                <?php endif; ?>
+                            </td>
+
+                            <!-- Modal for Each Admin -->
+                            <div class="modal fade" id="deleteStaff<?php echo $row['id']; ?>" tabindex="-1" aria-labelledby="deleteSuperAdminLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="deleteSuperAdminLabel">Delete Staff?</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Are you sure you want to delete <strong><?php echo htmlspecialchars($row['name']); ?></strong>?
+                                            <form action="backend_staff.php" method="POST">
+                                                <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" id="btn-custom-color" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" name="deletestaff" id="btn-custom-color" class="btn btn-danger">Delete</button>
+                                        </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </tr>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="4" class="text-center"><strong>No Staff found.</strong> Try to add new one or check spelling when you search.</td>
+                    </tr>
+                <?php endif; ?>
             </tbody>
-            
         </table>
+
+        <br>
+
+        <!-- Pagination -->
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center">
+                <!-- Previous -->
+                <li class="page-item <?php if ($page <= 1) echo 'disabled'; ?>">
+                    <a class="page-link" href="?page=<?php echo $page - 1; ?>&search=<?php echo $search; ?>" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+
+                <!-- Page Numbers -->
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                    <li class="page-item <?php if ($page == $i) echo 'active'; ?>">
+                        <a class="page-link" href="?page=<?php echo $i; ?>&search=<?php echo $search; ?>"><?php echo $i; ?></a>
+                    </li>
+                <?php endfor; ?>
+
+                <!-- Next Button -->
+                <li class="page-item <?php if ($page >= $totalPages) echo 'disabled'; ?>">
+                    <a class="page-link" href="?page=<?php echo $page + 1; ?>&search=<?php echo $search; ?>" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
     </div>
 
     <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script>
+        document.getElementById('toggle-password').addEventListener('click', function() {
+            const passwordField = document.getElementById('password-field');
+            const toggleIcon = this.querySelector('i');
+
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleIcon.classList.add('fa-eye-slash');
+                toggleIcon.classList.remove('fa-eye');
+            } else {
+                passwordField.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        })
+
+        document.getElementById('new-toggle-password').addEventListener('click', function() {
+            const passwordField = document.getElementById('new-password-field');
+            const toggleIcon = this.querySelector('i');
+
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleIcon.classList.add('fa-eye-slash');
+                toggleIcon.classList.remove('fa-eye');
+            } else {
+                passwordField.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        })
+
+        // Data populate
+        $(document).ready(function() {
+            // Attach click event listener to Edit buttons
+            $('.btn[data-id]').on('click', function() {
+                const userId = $(this).data('id'); // Get user ID from the button's data-id attribute
+
+                // Send AJAX request to fetch user details
+                $.ajax({
+                    url: 'backend_staff.php',
+                    type: 'POST',
+                    data: {
+                        populate: true,
+                        id: userId
+                    },
+                    dataType: 'json', // Expect JSON response
+                    success: function(response) {
+                        if (response.success) {
+                            // Populate the modal fields with data from the response
+                            $('#editStaff input[name="name"]').val(response.name);
+                            $('#editStaff input[name="email"]').val(response.email);
+                            $('#editStaff input[name="id"]').val(response.id);
+
+                            // Set the role in the select dropdown using the role_id
+                            $('#editStaff select[name="role"]').val(response.role_id); // Set the role_id directly here
+                        } else {
+                            alert('Failed to fetch user data. Please try again.');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error:', error);
+                        alert('An error occurred while fetching user data. Please try again.');
+                    }
+                });
+            });
+        });
+    </script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </body>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 15, 2024 at 04:11 PM
+-- Generation Time: Dec 18, 2024 at 03:29 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -73,13 +73,7 @@ CREATE TABLE `tbldocuments` (
 --
 
 INSERT INTO `tbldocuments` (`file_psa`, `file_goodmoral`, `file_transcre`, `file_tor`, `file_permrec`, `file_f137`, `file_f9`, `file_marcon`, `o_file`, `sid`) VALUES
-('DUPLICATED BIRTHCERT DOCUMENT.pdf', 'DUPLICATED GOOD MORAL DOCUMENT.pdf', 'DUPLICATED TRANSFER CREDENTIALS DOCUMENT.pdf', 'DUPLICATED TOR CREDENTIALS DOCUMENT.pdf', 'DUPLICATED PERMANENT RECORD DOCUMENT.pdf', 'DUPLICATED FORM 137 DOCUMENT.pdf', 'DUPLICATED FORM 9 DOCUMENT.pdf', 'DUPLICATED MARRIAGE CONTRACT DOCUMENT.pdf', NULL, 'A00-0000'),
-('dummy birthcert.pdf', 'dummy good moral.pdf', 'dummy transfer credentials.pdf', 'dummy tor.pdf', 'dummy permanent record.pdf', 'dummy form 137.pdf', 'dummy form 9.pdf', 'dummy marriage contract.pdf', 'dummy opt2.pdf,dummy opt1.pdf', 'A00-0001'),
-('', '', '', '', '', '', '', '', NULL, 'A00-0002'),
-('', '', '', '', '', '', '', '', NULL, 'A00-0003'),
-('SIMULATED BIRTHCERT DOCUMENT.pdf', 'SIMULATED GOOD MORAL DOCUMENT.pdf', 'SIMULATED TRANSFER CREDENTIALS DOCUMENT.pdf', 'SIMULATED TOR CREDENTIALS DOCUMENT.pdf', 'SIMULATED PERMANENT RECORD DOCUMENT.pdf', 'SIMULATED FORM 137 DOCUMENT.pdf', 'SIMULATED FORM 9 DOCUMENT.pdf', '', NULL, 'A00-0004'),
-('Simulated psa.pdf', 'Simulated good moral.pdf', 'Simulated transfer cred.pdf', 'Simulated tor.pdf', 'Simulated permanent rec.pdf', 'Simulated form137.pdf', 'Simulated form 9.pdf', 'Simulated marriage contract.pdf', 'Simulated optional 1.docx,Simulated optional 3.docx', 'A00-0005'),
-('dum\'s psa 3.pdf', 'dum\'s goodmoral 3.pdf', 'dum\'s transcre 3.pdf', 'dum\'s tor 3.pdf', 'dum\'s permarec 3.pdf', 'dum\'s form137 3.pdf', 'dum\'s form9 3.pdf', 'dum\'s marriagecon 3.pdf', 'dum\'s option2 3.pdf,dum\'s option1 3.pdf', 'A00-0006');
+('', '', '', '', '', '', '', '', NULL, 'A00-0000');
 
 -- --------------------------------------------------------
 
@@ -124,7 +118,7 @@ CREATE TABLE `tblroles` (
 INSERT INTO `tblroles` (`role_id`, `role_name`) VALUES
 (0, 'Staff'),
 (1, 'Admin'),
-(2, 'Super Admin');
+(2, 'Head Admin');
 
 -- --------------------------------------------------------
 
@@ -158,13 +152,7 @@ CREATE TABLE `tblstudents` (
 --
 
 INSERT INTO `tblstudents` (`fname`, `lname`, `midname`, `minit`, `suffix`, `course`, `section`, `major`, `ylvl`, `batch`, `sid`, `email`, `address`, `phone`, `age`, `bday`, `sex`, `filename`) VALUES
-('eklj', 'skldad', 'Mkslj', 'M', '', 'BSA', '', '-', 1, 0, 'A00-0000', 'somd@domain.com', 'ospdkas', 324809328, 21, '2003-01-01', 'Male', 'a student.png'),
-('adasdasdas', 'skldad', 'Mkslj', 'M', 'Jr.', 'ACS', 'A', '-', 2, 2024, 'A00-0001', 'dosom@domain.com', 'ospdkas', 2147483647, 21, '2003-01-02', 'Male', 'dancing banana.gif'),
-('Test', 'Test', 'Test', 'T', 'Jr.', 'BSCoE', 'C', 'STEM', 1, 2024, 'A00-0002', 'adsa@domain.com', 'oiasuasn', 123, 21, '2003-02-03', 'Male', '56217b1ef6a69a2583ff13655d48bc53.jpg'),
-('Another', 'Test', 'T', 'T', 'Sr.', 'BSBA', 'A', 'Financial Management', 2, 2023, 'A00-0003', 'test@domain.com', 'adasd', 122313, 24, '2000-03-02', 'Male', 'minecraft-steve-game-character-q13oX64-600.jpg'),
-('dfdsfsdf', 'sfsafsa', 'Soasdunas', 'S', 'II', 'ABPsy', '', '-', 4, 2012, 'A00-0004', 'teo@domai.com', 'soiduasn', 142352, 3, '2021-02-03', 'Male', '66393c7bf72ac71bd1fc070be8b9cd52.jpg'),
-('rewtwre', 'rterte', 'Rwrew', 'R', 'III', 'BSTM', 'B', '-', 4, 2017, 'A00-0005', 'osamaf@domain.com', 'iosudnsiou', 124314, 25, '1999-02-01', 'Male', 'a student cartoon version.png'),
-('eklj', 'skldad', 'Mkslj', 'M', '', 'BSCS', '', '-', 2, 0, 'A00-0006', 'OASMFD@DOMAIN.COM', 'ospdkas', 3432432, 50, '1974-02-02', 'Male', 'baconguyroblox.png');
+('ekljaa', 'skldad', 'Mkslj', 'M', '', 'BSA', '', '-', 1, 0, 'A00-0000', 'test@domain.com', 'ospdkas', 123, 21, '2003-01-01', 'Male', 'vilager minecraft.jpg');
 
 -- --------------------------------------------------------
 
@@ -187,7 +175,9 @@ CREATE TABLE `tblusers` (
 --
 
 INSERT INTO `tblusers` (`id`, `name`, `email`, `password`, `code`, `role_id`, `status`) VALUES
-(70, 'dummy', 'allanmelitonalternate@gmail.com', '$2y$10$uKQPgHIDgaQP4ocxRmdrDeTSSDGJSRXlyGYWLusK99p5BwRcJJGa2', 0, 0, 'verified');
+(81, 'dummy2', 'allanmelitonalternate@gmail.com', '$2y$10$BZOS/F1vpskAGQ.XhAOpzuu28dwF53XOVQERL1uGxqyFeThfeudH.', 0, 2, 'verified'),
+(101, 'Charizard', 'asamelitonstem@gmail.com', '$2y$10$GpXrd2c7txnzGRyUYBkq1O6S4tN5275B4XL/WMTEhwATgBiLo2VCu', 0, 1, 'verified'),
+(103, 'Raichu', 'allansteven@outlook.com', '$2y$10$vGNcyHsPGnWddCDdP5B0DeTp1EhJkEKFVjs4ex7LptvgRpr7D85n2', 0, 0, 'verified');
 
 --
 -- Indexes for dumped tables
@@ -238,7 +228,7 @@ ALTER TABLE `tblfacts`
 -- AUTO_INCREMENT for table `tblusers`
 --
 ALTER TABLE `tblusers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=71;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=110;
 
 --
 -- Constraints for dumped tables

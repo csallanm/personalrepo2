@@ -386,7 +386,15 @@ $program = isset($_GET['program']) ? $_GET['program'] : 'All';
                                     <label for="inputInline" class="col-form-label">Phone number:</label>
                                 </div>
                                 <div class="col-auto">
-                                    <input id="custom-textbox" class="form-control" type="number" name="phone" placeholder="" required>
+                                    <input
+                                        id="custom-textbox"
+                                        class="form-control"
+                                        type="text"
+                                        name="phone"
+                                        placeholder="+639123456789 or 09123456789"
+                                        pattern="^(\+63|0)\d{10}$"
+                                        title="Please enter a valid phone number starting with +63 or 0, followed by 10 digits. e.g. +639123456789 or 09123456789"
+                                        required>
                                 </div>
                             </div>
                         </div>
@@ -731,7 +739,15 @@ $program = isset($_GET['program']) ? $_GET['program'] : 'All';
                                     <label for="inputInline" class="col-form-label">Phone number:</label>
                                 </div>
                                 <div class="col-auto">
-                                    <input id="phone" class="form-control" type="number" name="phone" placeholder="" required>
+                                    <input
+                                        id="phone"
+                                        class="form-control"
+                                        type="text"
+                                        name="phone"
+                                        placeholder="+639123456789 or 09123456789"
+                                        pattern="^(\+63|0)\d{10}$"
+                                        title="Please enter a valid phone number starting with +63 or 0, followed by 10 digits. e.g. +639123456789 or 09123456789"
+                                        required>
                                 </div>
                             </div>
                         </div>
@@ -1073,7 +1089,7 @@ $program = isset($_GET['program']) ? $_GET['program'] : 'All';
                     echo "<img src='assets/norecords.png' width='150' style='margin-right: 10px;'>";
                     echo "<div>";
                     echo "<h2 style='margin: 0;'>No records found</h2>";
-                    echo "<p style='margin: 0;'>Try adding students data or adjust the course filters.</p>";
+                    echo "<p style='margin: 0;'>Try adding students data, adjust the course filters or check spelling when you search.</p>";
                     echo "</div>";
                     echo "</div>";
                 }

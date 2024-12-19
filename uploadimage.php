@@ -486,7 +486,7 @@ if (isset($_POST['update_data'])) {
     }
 
     if (!empty($errors)) {
-        $_SESSION['status'] = "Errors encountered: " . implode(", ", $errors);
+        $_SESSION['status'] = "Errors encountered: " . implode("<br>", $errors);
     }
 
     header('Location: students.php?program=' . urlencode(empty($errors) ? $course : $originalCourse));

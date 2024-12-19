@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 18, 2024 at 03:29 PM
+-- Generation Time: Dec 19, 2024 at 02:56 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -68,38 +68,6 @@ CREATE TABLE `tbldocuments` (
   `sid` varchar(25) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `tbldocuments`
---
-
-INSERT INTO `tbldocuments` (`file_psa`, `file_goodmoral`, `file_transcre`, `file_tor`, `file_permrec`, `file_f137`, `file_f9`, `file_marcon`, `o_file`, `sid`) VALUES
-('', '', '', '', '', '', '', '', NULL, 'A00-0000');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `tblfacts`
---
-
-CREATE TABLE `tblfacts` (
-  `id` int(11) NOT NULL,
-  `fact` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `tblfacts`
---
-
-INSERT INTO `tblfacts` (`id`, `fact`) VALUES
-(5, 'EUC SAS (Student Archiving System)'),
-(6, 'this is a test'),
-(7, 'hello'),
-(8, 'This is develoed by CCS department.'),
-(9, 'Make your day great!'),
-(10, 'I got this! Never giver up!'),
-(11, 'MSEUF-CI, was established in 1992. The Luzonian was the first name of MSEUF.'),
-(12, 'MSEUF-CI is resputable Education institution that offers a wide range of programs from elementary to college levels.');
-
 -- --------------------------------------------------------
 
 --
@@ -140,19 +108,12 @@ CREATE TABLE `tblstudents` (
   `sid` varchar(25) NOT NULL,
   `email` varchar(255) NOT NULL,
   `address` varchar(535) NOT NULL,
-  `phone` int(16) NOT NULL,
+  `phone` varchar(255) NOT NULL,
   `age` int(16) NOT NULL,
   `bday` date NOT NULL,
   `sex` varchar(32) NOT NULL,
   `filename` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `tblstudents`
---
-
-INSERT INTO `tblstudents` (`fname`, `lname`, `midname`, `minit`, `suffix`, `course`, `section`, `major`, `ylvl`, `batch`, `sid`, `email`, `address`, `phone`, `age`, `bday`, `sex`, `filename`) VALUES
-('ekljaa', 'skldad', 'Mkslj', 'M', '', 'BSA', '', '-', 1, 0, 'A00-0000', 'test@domain.com', 'ospdkas', 123, 21, '2003-01-01', 'Male', 'vilager minecraft.jpg');
 
 -- --------------------------------------------------------
 
@@ -175,9 +136,7 @@ CREATE TABLE `tblusers` (
 --
 
 INSERT INTO `tblusers` (`id`, `name`, `email`, `password`, `code`, `role_id`, `status`) VALUES
-(81, 'dummy2', 'allanmelitonalternate@gmail.com', '$2y$10$BZOS/F1vpskAGQ.XhAOpzuu28dwF53XOVQERL1uGxqyFeThfeudH.', 0, 2, 'verified'),
-(101, 'Charizard', 'asamelitonstem@gmail.com', '$2y$10$GpXrd2c7txnzGRyUYBkq1O6S4tN5275B4XL/WMTEhwATgBiLo2VCu', 0, 1, 'verified'),
-(103, 'Raichu', 'allansteven@outlook.com', '$2y$10$vGNcyHsPGnWddCDdP5B0DeTp1EhJkEKFVjs4ex7LptvgRpr7D85n2', 0, 0, 'verified');
+(81, 'dummy2', 'allanmelitonalternate@gmail.com', '$2y$10$BZOS/F1vpskAGQ.XhAOpzuu28dwF53XOVQERL1uGxqyFeThfeudH.', 0, 2, 'verified');
 
 --
 -- Indexes for dumped tables
@@ -188,12 +147,6 @@ INSERT INTO `tblusers` (`id`, `name`, `email`, `password`, `code`, `role_id`, `s
 --
 ALTER TABLE `tblcourses`
   ADD UNIQUE KEY `course` (`course`);
-
---
--- Indexes for table `tblfacts`
---
-ALTER TABLE `tblfacts`
-  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `tblroles`
@@ -219,16 +172,10 @@ ALTER TABLE `tblusers`
 --
 
 --
--- AUTO_INCREMENT for table `tblfacts`
---
-ALTER TABLE `tblfacts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
-
---
 -- AUTO_INCREMENT for table `tblusers`
 --
 ALTER TABLE `tblusers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=110;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=116;
 
 --
 -- Constraints for dumped tables

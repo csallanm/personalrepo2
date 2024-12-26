@@ -18,14 +18,15 @@
 - [x] Pagination in every role of account managers (Super Admin, Admin ok)
 - [x] FILTER_VALIDATE_EMAIL for adding and editing students
 - [x] Phone number format in students (as suggested by Sir Chua)
+- [x] Add "None" or any other indicators in dropdown
 
 ## 🚧 In Progress
 
 
 ## 📋 Pending Tasks
 
-
 ## 🔧 For enhancements
+
 
 ## Whole System Retest (LOCALHOST)
 - [x] Login
@@ -41,11 +42,15 @@
 > [x] Add Head Admin
 > [x] Edit Head Admin
 > [x] Delete Head Admin
-- [x] Students
+
+
+- [ ] Students
 > [x] Add Student no docs
+> [x] Add Student no course
 > [x] Add Student with docs
 > [x] Edit Student no docs
 > [x] Edit Student with docs
+> [x] Edit Student no course
 > [x] Upload invalid pictures (add)
 > [x] add students with same student id
 > [x] Upload invalid pictures (edit)
@@ -55,8 +60,8 @@
 > [x] Upload duplicate file names (edit)
 > [x] Invalid email (add)
 > [x] Invalid email (edit)
-- [x] Updating your own account
-- [x] Forgot Password
+- [ ] Updating your own account
+- [ ] Forgot Password
 
 ## Whole System (DEPLOYED LIVE)
 - [ ] Login

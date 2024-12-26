@@ -250,6 +250,7 @@ $program = isset($_GET['program']) ? $_GET['program'] : 'All';
                                 </div>
                                 <div class="col-auto">
                                     <select class="form-select" id="courseAdd" name="course">
+                                        <option value="" selected>-</option>
                                         <option value="BSA">BSA</option>
                                         <option value="BSBA">BSBA</option>
                                         <option value="BSCoE">BSCoE</option>
@@ -262,6 +263,7 @@ $program = isset($_GET['program']) ? $_GET['program'] : 'All';
                                         <option value="ABPsy">ABPsy</option>
                                         <option value="BSTM">BSTM</option>
                                     </select>
+                                    <div id="courseAddError" class="text-danger" style="display: none;">Please select a valid course.</div>
                                 </div>
                             </div>
                         </div>
@@ -536,7 +538,7 @@ $program = isset($_GET['program']) ? $_GET['program'] : 'All';
                     <h1 class="modal-title fs-5" id="editdataLabel">Edit Student</h1>
                 </div>
                 <div class="modal-body">
-                    <form action="uploadimage.php" id="studentform" method="POST" enctype="multipart/form-data">
+                    <form action="uploadimage.php" id="studentEditform" method="POST" enctype="multipart/form-data">
                         <div class="container">
                             <div class="row align-items-center">
                                 <div class="col-auto">
@@ -617,6 +619,7 @@ $program = isset($_GET['program']) ? $_GET['program'] : 'All';
                                 </div>
                                 <div class="col-auto">
                                     <select class="form-select" id="courseEdit" name="course">
+                                        <option value="" selected>-</option>
                                         <option value="BSA">BSA</option>
                                         <option value="BSBA">BSBA</option>
                                         <option value="BSCoE">BSCoE</option>
@@ -629,6 +632,7 @@ $program = isset($_GET['program']) ? $_GET['program'] : 'All';
                                         <option value="ABPsy">ABPsy</option>
                                         <option value="BSTM">BSTM</option>
                                     </select>
+                                    <div id="courseEditError" class="text-danger" style="display: none;">Please select a valid course.</div>
                                 </div>
                             </div>
                         </div>
@@ -1376,6 +1380,50 @@ $program = isset($_GET['program']) ? $_GET['program'] : 'All';
                     // Set the calculated age
                     ageInput.value = age >= 0 ? age : '';
                 });
+            });
+
+            document.getElementById('courseAdd').addEventListener('change', function() {
+                const courseError = document.getElementById('courseAddError');
+                if (this.value === "") {
+                    courseError.style.display = 'block';
+                } else {
+                    courseError.style.display = 'none';
+                }
+            });
+
+            // Example for form submission validation
+            document.getElementById('studentform').addEventListener('submit', function(e) {
+                const courseAdd = document.getElementById('courseAdd');
+                const courseError = document.getElementById('courseAddError');
+                if (courseAdd.value === "") {
+                    e.preventDefault(); // Prevent form submission
+                    courseError.style.display = 'block';
+                    courseAdd.focus();
+                } else {
+                    courseError.style.display = 'none';
+                }
+            });
+
+            document.getElementById('courseEdit').addEventListener('change', function() {
+                const courseError = document.getElementById('courseEditError');
+                if (this.value === "") {
+                    courseError.style.display = 'block';
+                } else {
+                    courseError.style.display = 'none';
+                }
+            });
+
+            // Example for form submission validation
+            document.getElementById('studentEditform').addEventListener('submit', function(e) {
+                const courseEdit = document.getElementById('courseEdit');
+                const courseError = document.getElementById('courseEditError');
+                if (courseEdit.value === "") {
+                    e.preventDefault(); // Prevent form submission
+                    courseError.style.display = 'block';
+                    courseEdit.focus();
+                } else {
+                    courseError.style.display = 'none';
+                }
             });
         </script>
 
